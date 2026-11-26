@@ -162,6 +162,11 @@ details.why .tbody{margin-top:8px}
 .choice.wrong{background:var(--red);color:var(--bg);border-color:var(--red)}
 .choice.dim{opacity:.5}
 .choice:disabled{cursor:default}
+.gmenu{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.gmenu button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;background:var(--surface);border:0;color:var(--fg);cursor:pointer;font:inherit}
+.gm-t{font:700 17px var(--display);min-width:0;flex:1}
+.gm-d{display:block;font:400 13px/1.4 var(--body);color:var(--muted);margin-top:2px}
+.gm-c{font-size:24px;color:var(--muted);flex:none}
 .linktxt{font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
 .sharebtn{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:6px 12px;font:600 13px var(--body);cursor:pointer}
 .sharebtn svg{width:16px;height:16px}
@@ -322,7 +327,7 @@ function conjugate(inf0){
   return forms}
 
 // ---------- state ----------
-let currentTab='practice',detailVerb=null,vFilter='all',vSearch='';
+let currentTab='practice',detailVerb=null,vFilter='all',vSearch='',guiaPage=null;
 const DEFAULT_SETTINGS={meaning:true,conj:true,tenses:[0],vos:false,newPerDay:15,group:'all',auto:true,rate:0.85,voice:'',trick:true};
 let S={cards:{},day:{d:'',n:0},settings:{...DEFAULT_SETTINGS},t:0,custom:[]};
 const LS='verbos-mz-v1';
@@ -455,7 +460,8 @@ function renderPractice(){
       :h('div',{style:'display:flex;flex-direction:column;gap:8px'},h('p',{class:'note',style:'margin:0;text-align:center'},'All caught up for today. Want to keep going?'),h('button',{class:'btn yellow block',onclick:giveMore},moreLabel())),
     h('p',{class:'note',style:'margin-top:12px'},'🔊 Tap any speaker button to hear Portuguese. It plays even in Silent mode. If you hear nothing, turn the volume up while the app is open.'),
     h('p',{class:'note',style:'margin-top:12px'},'Practising: '+[S.settings.meaning?'meanings':null,S.settings.conj?'conjugations ('+tl+')':null].filter(Boolean).join(' + ')+'. ',
-      h('button',{class:'linkbtn',onclick:()=>go('settings')},'Change'))
+      h('button',{class:'linkbtn',onclick:()=>go('settings','practise')},'Change')),
+    h('p',{class:'note',style:'margin-top:4px'},'Using Verbos on another device too? ',h('button',{class:'linkbtn',onclick:()=>go('settings','sync')},'Sync & update'))
   ];
 }
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -609,16 +615,21 @@ function renderSettings(){
   const voiceSel=h('select',{id:'voice',onchange:e=>set('voice',e.target.value)},
     voices.length?voices.map(v=>h('option',{value:v.name,selected:pickVoice()===v},v.name+' ('+v.lang+')')):h('option',{},'No Portuguese voice found'));
   const c=counts();
-  return [
-    installPanel(),
-    syncPanel(),
+  const installed=isInstalled();
+  const tl=st.tenses.map(t=>TENSES[t].pt).join(', ');
+  const gl={all:'All '+VERBS.length+' verbs',core:'Everyday verbs',gospel:'Gospel verbs',mine:'My verbs'}[st.group]||'All verbs';
+  const v=pickVoice();
+  const pages={
+    sync:{t:'Sync & update',d:'Version '+APP_VERSION+' · get the newest version and combine progress from your other device',b:()=>[syncPanel()]},
+    practise:{t:'What to practise',d:tl+' · '+gl+' · '+st.newPerDay+' new a day',b:()=>[
     h('div',{class:'panel'},h('h3',{},'What to practise'),
       h('div',{class:'field'},h('span',{},'Meanings (English → Portuguese)'),h('button',{class:'toggle','aria-pressed':String(st.meaning),onclick:()=>set('meaning',!st.meaning)},st.meaning?'On':'Off')),
       h('div',{class:'field'},h('span',{},'Conjugations'),h('button',{class:'toggle','aria-pressed':String(st.conj),onclick:()=>set('conj',!st.conj)},st.conj?'On':'Off')),
       h('div',{class:'field',style:'display:block'},h('span',{},'Tenses'),tenseBtns,h('p',{class:'note',style:'margin:4px 0 0'},'Start with Presente. Add Pretérito perfeito once most present cards say "Good".')),
       h('div',{class:'field'},h('span',{},'Verbs'),h('select',{id:'group',onchange:e=>set('group',e.target.value)},[['all','All '+VERBS.length],['core','Everyday ('+VERBS.filter(v=>v.group==='core').length+')'],['gospel','Gospel ('+VERBS.filter(v=>v.group==='gospel').length+')'],...(S.custom.length?[['mine','My verbs ('+S.custom.length+')']]:[])].map(([k,l])=>h('option',{value:k,selected:st.group===k},l)))),
       h('div',{class:'field'},h('span',{},'Include vós'),h('button',{class:'toggle','aria-pressed':String(st.vos),onclick:()=>set('vos',!st.vos)},st.vos?'On':'Off')),
-      h('div',{class:'field'},h('label',{for:'npd'},'New cards per day'),h('input',{id:'npd',type:'number',min:0,max:100,value:st.newPerDay,onchange:e=>set('newPerDay',Math.max(0,Math.min(100,+e.target.value||0)))}))),
+      h('div',{class:'field'},h('label',{for:'npd'},'New cards per day'),h('input',{id:'npd',type:'number',min:0,max:100,value:st.newPerDay,onchange:e=>set('newPerDay',Math.max(0,Math.min(100,+e.target.value||0)))})))]},
+    voice:{t:'Pronunciation',d:(v?v.name:'Default voice')+' · '+({0.7:'Slow',0.85:'Relaxed',1:'Normal'}[st.rate]||'Relaxed')+' speed',b:()=>[
     h('div',{class:'panel'},h('h3',{},'Pronunciation'),
       synth?null:h('p',{class:'note'},'This browser can’t speak text.'),
       h('div',{class:'field'},h('label',{for:'voice'},'Voice'),voiceSel),
@@ -628,25 +639,28 @@ function renderSettings(){
       h('div',{class:'field',style:'display:block'},h('div',{class:'row-between',style:'margin:0'},h('span',{},'Sound check'),h('button',{class:'btn',style:'padding:8px 14px',onclick:e=>soundCheck(e.target.closest('.field').querySelector('pre'))},'Run sound check')),
         h('pre',{class:'diag'},'Tap Run sound check, then send a screenshot of this box if you hear nothing.')),
       h('p',{class:'note'},h('b',{},'No sound? '),'The built-in verbs and sentences are recorded, so they play even in Silent mode. Turn the volume up while the app is open, then tap Play sample. Verbs you add yourself use the live voice, which Silent mode on iPhone mutes. The Speed setting applies to both.'),
-      h('p',{class:'note'},'Pick a Portugal (pt-PT) voice. Mozambican speech is closer to it than to Brazilian, though Mozambicans say their vowels more fully. For a better voice on iPhone, go to Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal) and download an Enhanced voice, then reopen this page.')),
+      h('p',{class:'note'},'Pick a Portugal (pt-PT) voice. Mozambican speech is closer to it than to Brazilian, though Mozambicans say their vowels more fully. For a better voice on iPhone, go to Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal) and download an Enhanced voice, then reopen this page.'))]},
+    tips:{t:'How to use this well',d:'A ten-minute daily routine that works',b:()=>[
     h('div',{class:'panel'},h('h3',{},'How to use this well'),
       h('ol',{},
         h('li',{},'Practise once a day. Do the reviews first. They are the cards you are about to forget.'),
         h('li',{},'Always say the answer out loud before you flip. Then listen and repeat it once more.'),
         h('li',{},'After each answer, tap how well you knew it. “I didn’t know it” brings the card back in a minute. “Easy” sends it away for days or weeks. Each time you get a card right, the wait before you see it again gets longer.'),
         h('li',{},'Learn the irregular verbs first (the list is already in that order).'),
-        h('li',{},'Read the example sentences aloud. They show the verb the way people say it in Maputo or Beira.'))),
-    h('div',{class:'panel'},h('h3',{},'App version '+APP_VERSION),
-      h('p',{class:'note',style:'margin:0 0 8px'},'Updates load by themselves within a few minutes. To get the newest version right now, tap the button.'),
-      h('button',{class:'btn primary',onclick:forceUpdate},'Check for updates')),
+        h('li',{},'Read the example sentences aloud. They show the verb the way people say it in Maputo or Beira.')))]},
+    share:{t:'Share the app',d:'Send Verbos to friends and family',b:()=>[
     h('div',{class:'panel'},h('h3',{},'Share it'),
       h('p',{},'Tap Share at the top of the screen to copy the link, then paste it into a text, WhatsApp or email.'),
-      h('button',{class:'btn primary',onclick:shareApp},'Share this app')),
-
+      h('button',{class:'btn primary',onclick:shareApp},'Share this app'))]},
+    install:{t:'Put it on your home screen',d:installed?'Installed on this device ✓':'Add Verbos to your iPhone home screen or Mac Dock',b:()=>[installPanel()]},
+    about:{t:'About',d:c.known+' of '+c.total+' cards learned · notes on your spreadsheet',b:()=>[
     h('div',{class:'panel'},h('h3',{},'Your progress'),
       h('p',{class:'note'},c.known+' of '+c.total+' cards learned. '+(remote?'Saved to your Claude account.':'Saved on this device.')),
-      h('p',{class:'note'},'From your spreadsheet: fixed "eu devi" (was "devia"), added the missing "eles sentem" row, corrected "vós arrependeis-vos", and put the pronoun first in the subjunctive of arrepender-se ("que eu me arrependa"), which is how it is said.'))
-  ];
+      h('p',{class:'note'},'From your spreadsheet: fixed "eu devi" (was "devia"), added the missing "eles sentem" row, corrected "vós arrependeis-vos", and put the pronoun first in the subjunctive of arrepender-se ("que eu me arrependa"), which is how it is said.'))]}};
+  if(guiaPage&&pages[guiaPage])return [h('button',{class:'linkbtn',onclick:()=>{guiaPage=null;render();window.scrollTo(0,0)}},'‹ Guia'),...pages[guiaPage].b()];
+  const order=installed?['sync','practise','voice','tips','share','install','about']:['install','sync','practise','voice','tips','share','about'];
+  return [h('ul',{class:'gmenu'},order.map(k=>h('li',{},h('button',{onclick:()=>{guiaPage=k;render();window.scrollTo(0,0)}},
+    h('span',{class:'gm-t'},pages[k].t,h('span',{class:'gm-d'},pages[k].d)),h('span',{class:'gm-c','aria-hidden':'true'},'›')))))];
 }
 function tenseBody(i){const T=TENSES[i];return h('div',{class:'tbody'},
   h('p',{class:'when'},T.when),
@@ -666,7 +680,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='11';
+const APP_VERSION='12';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
@@ -707,24 +721,36 @@ async function sendProgress(out){out.textContent='Making your link…';
     if(navigator.share){out.append(h('button',{class:'btn primary block',onclick:()=>navigator.share({title:'My Verbos progress',url}).then(()=>done('Sent. Open it on your other device.')).catch(()=>{})},'Share link (AirDrop, Messages…)'))}
     out.append(h('button',{class:'btn block',style:'margin-top:8px',onclick:()=>{try{navigator.clipboard.writeText(url).then(()=>done('Link copied. Send it to yourself and open it on your other device.'),()=>done('Could not copy. Use the Share button instead.'))}catch(e){done('Could not copy. Use the Share button instead.')}}},'Copy link'));
   }catch(e){out.textContent='Could not make the link on this browser.'}}
+const FLASH='verbos-flash';
+function syncAndUpdate(summary){try{localStorage.setItem(FLASH,JSON.stringify({summary:summary||'',from:APP_VERSION}))}catch(e){}forceUpdate()}
+function showFlash(){let f=null;try{f=JSON.parse(localStorage.getItem(FLASH)||'null');localStorage.removeItem(FLASH)}catch(e){}
+  if(!f)return;const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet'},h('h3',{},'All synced'),
+    h('p',{class:'ok',style:'margin:0'},APP_VERSION!==f.from?'Updated to version '+APP_VERSION+'.':'You have the newest version ('+APP_VERSION+').'),
+    f.summary?h('p',{class:'ok',style:'margin:0'},f.summary):null,
+    h('button',{class:'btn primary block',onclick:()=>{bg.remove();go('practice')}},'Start practising')));document.body.append(bg)}
 function syncPanel(){
-  const out=h('div',{});const box=h('textarea',{id:'synccode',rows:2,class:'search',placeholder:'Paste the progress link here',style:'resize:vertical'});const msg=h('p',{class:'note',style:'margin:6px 0 0'},'');
-  return h('div',{class:'panel',id:'sync-panel'},h('h3',{},'Use on your phone and computer'),
-    h('p',{class:'note',style:'margin:0 0 10px'},'Your progress stays on each device and is never uploaded. To move it, send yourself a private link, then bring it in on the other device. The two are combined, keeping whichever is further along for each card. Do it whenever you switch devices.'),
-    h('p',{style:'margin:0 0 6px;font-weight:600'},'1. On the device you practised on'),h('button',{class:'btn yellow block',onclick:()=>sendProgress(out)},'Send my progress to another device'),out,
-    h('p',{style:'margin:14px 0 0;font-weight:600'},'2. On the other device'),
-    h('p',{class:'note',style:'margin:4px 0 0'},'Press and hold the link in Messages (or wherever you sent it) and tap Copy. Do not just tap it: that opens Safari, which keeps separate progress from your Verbos icon. Open Verbos from your home screen or Dock, come here, and paste it below.'),
-    h('div',{style:'margin-top:12px;display:flex;flex-direction:column;gap:8px'},box,
-      h('button',{class:'btn block',onclick:async()=>{let d;try{d=await unpackProgress(box.value)}catch(e){msg.textContent='That does not look like a Verbos progress link. Copy the whole link and try again.';return}
-        const r=mergeProgress(d);const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet'},h('h3',{},'All set'),h('p',{class:'ok',style:'margin:0'},mergeSummary(r)),h('button',{class:'btn primary block',onclick:()=>{bg.remove();go('practice')}},'Start practising')));document.body.append(bg)}},'Bring in progress'),msg),
-    h('p',{class:'note'},'Only share this link with yourself. Anyone who opens it gets a copy of your progress, though they cannot change yours.'))}
+  const out=h('div',{});const msg=h('p',{class:'note',style:'margin:0;color:var(--red)'},'');
+  const box=h('textarea',{id:'synccode',rows:2,class:'search',placeholder:'Paste a progress link from your other device (optional)',style:'resize:vertical'});
+  const syncBtn=h('button',{class:'btn yellow block',onclick:async()=>{
+    const txt=box.value.trim();syncBtn.textContent='Syncing…';
+    if(!txt){syncAndUpdate('');return}
+    let d;try{d=await unpackProgress(txt)}catch(e){msg.textContent='That does not look like a Verbos progress link. Copy the whole link and try again, or clear the box to just update.';syncBtn.textContent='Sync now';return}
+    syncAndUpdate(mergeSummary(mergeProgress(d)))}},'Sync now');
+  return h('div',{class:'panel',id:'sync-panel'},h('h3',{},'Sync & update'),
+    h('p',{class:'note',style:'margin:0 0 10px'},'App version '+APP_VERSION+'. Sync now always loads the newest version of the app. If you paste a progress link from your other device, it also combines that progress with this one, keeping whichever is further along for each card.'),
+    h('div',{style:'display:flex;flex-direction:column;gap:8px'},box,msg,syncBtn),
+    h('h4',{},'Send this device’s progress'),
+    h('p',{class:'note',style:'margin:0 0 8px'},'Do this on the device you practised on last. Send the link to yourself, then paste it in the box above on your other device.'),
+    h('button',{class:'btn block',onclick:()=>sendProgress(out)},'Send my progress'),out,
+    h('p',{class:'note'},'On the other device, press and hold the link and tap Copy rather than tapping it. Tapping opens Safari, which keeps separate progress from your Verbos icon. Your progress is never uploaded anywhere. Only send the link to yourself.'))}
+
 async function checkSyncLink(){const m=location.hash.match(/^#sync=([A-Za-z0-9_-]+)/);if(!m)return;
   let d;try{d=await unpackProgress(m[1])}catch(e){history.replaceState(null,'',location.pathname);return}
   const n=Object.keys(d.cards||{}).length;
   const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet',role:'dialog','aria-label':'Bring in progress'},
     h('h3',{},'Bring in your progress?'),
     h('p',{class:'note',style:'margin:0'},'This link has '+n+' practised cards'+((d.custom||[]).length?' and '+d.custom.length+' of your own verbs':'')+'. They will be combined with this device’s progress. Nothing here is lost.'),
-    h('button',{class:'btn yellow block',onclick:()=>{const r=mergeProgress(d);history.replaceState(null,'',location.pathname);bg.replaceChildren(h('div',{class:'sheet'},h('h3',{},'All set'),h('p',{class:'ok',style:'margin:0'},mergeSummary(r)),h('button',{class:'btn primary block',onclick:()=>bg.remove()},'Start practising')))}},'Combine with this device'),
+    h('button',{class:'btn yellow block',onclick:()=>{const r=mergeProgress(d);history.replaceState(null,'',location.pathname);syncAndUpdate(mergeSummary(r))}},'Combine with this device'),
     h('button',{class:'btn block',onclick:()=>{history.replaceState(null,'',location.pathname);bg.remove()}},'Not now')));
   document.body.append(bg)}
 addEventListener('hashchange',checkSyncLink);setTimeout(checkSyncLink,0);
@@ -768,7 +794,7 @@ function shareApp(){
       h('p',{class:'note',style:'margin:0'},'Send this link in a text, WhatsApp or email. Anyone can open it. Each person’s progress is saved on their own phone or computer.'),
       h('div',{class:'link'},APP_URL),msg,
       h('button',{class:'btn primary block',onclick:()=>copyLink(msg)},'Copy link'),
-      h('button',{class:'btn block',onclick:()=>{bg.remove();go('settings')}},'How to add it to your home screen'),
+      h('button',{class:'btn block',onclick:()=>{bg.remove();go('settings','install')}},'How to add it to your home screen'),
       h('button',{class:'btn block',onclick:()=>bg.remove()},'Close')));
   document.body.append(bg);copyLink(msg);
 }
@@ -782,10 +808,12 @@ function copyLink(msg){
   },fallback)}catch(e){fallback()}
 }
 document.getElementById('sharebtn').addEventListener('click',shareApp);
+function isInstalled(){try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){return false}}
 function render(){view.replaceChildren(...(currentTab==='practice'?renderPractice():currentTab==='verbs'?renderVerbs():currentTab==='tenses'?renderTenses():renderSettings()).flat().filter(Boolean))}
-function go(tab){currentTab=tab;if(tab!=='verbs')detailVerb=null;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));render();window.scrollTo(0,0)}
+function go(tab,page){currentTab=tab;guiaPage=tab==='settings'?(page||null):guiaPage;if(tab!=='verbs')detailVerb=null;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));render();window.scrollTo(0,0)}
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
 render();
+showFlash();
 </script>
 
 </body>
