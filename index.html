@@ -154,6 +154,13 @@ details.why .tbody{margin-top:8px}
 .efield label{font-weight:600;font-size:13px;color:var(--muted)}
 .eex{display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid var(--line);border-radius:12px}
 .etable input{width:9.5em;font:16px var(--body);padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg)}
+.front-btns{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.choice{border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:12px;padding:14px 8px;font:700 19px/1.2 var(--display);cursor:pointer;overflow-wrap:anywhere;min-height:56px}
+.choice.right{background:var(--green);color:var(--bg);border-color:var(--green)}
+.choice.wrong{background:var(--red);color:var(--bg);border-color:var(--red)}
+.choice.dim{opacity:.5}
+.choice:disabled{cursor:default}
 .linktxt{font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
 .sharebtn{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:6px 12px;font:600 13px var(--body);cursor:pointer}
 .sharebtn svg{width:16px;height:16px}
@@ -364,7 +371,7 @@ function startSession(){const now=Date.now();const keys=eligibleKeys();
 function rateCard(r){const k=session.queue.shift();const c=S.cards[k];if(!c){S.day.n++}
   const ni=nextInterval(c,r);S.cards[k]={box:ni.box,due:Date.now()+ni.ms,n:(c?c.n:0)+1};
   if(r===0){session.queue.splice(Math.min(3,session.queue.length),0,k)}else session.done++;
-  session.revealed=false;session.exIdx++;save();render()}
+  session.revealed=false;session.choices=null;session.exIdx++;save();render()}
 
 // ---------- speech ----------
 const synth=window.speechSynthesis;let voices=[];
@@ -441,6 +448,21 @@ function renderPractice(){
       h('button',{class:'linkbtn',onclick:()=>go('settings')},'Change'))
   ];
 }
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+// Four options for a card. Wrong options come from the same verb (other persons, look-alike tenses) so the pick is not obvious.
+const LOOKALIKE={0:[3,2,1],1:[2,0,4],2:[1,0,4],3:[0,4,5],4:[3,5,2],5:[3,4,0]};
+function makeChoices(k){const parts=k.split('|');const v=VMAP[parts[1]];let correct,pool;
+  if(parts[0]==='m'){correct=v.inf;const end=v.inf.replace(/-se$/,'').slice(-2);
+    const others=VERBS.filter(x=>x.inf!==v.inf);
+    pool=[...shuffle(others.filter(x=>x.inf.replace(/-se$/,'').slice(-2)===end)),...shuffle(others)].map(x=>x.inf);
+  }else{const t=+parts[2],p=+parts[3];correct=v.forms[p][t].f;
+    const persons=personsOn().filter(q=>q!==p);
+    const A=shuffle(persons).map(q=>v.forms[q][t].f);
+    const B=LOOKALIKE[t].map(u=>v.forms[p][u].f);
+    pool=[];for(let i=0;i<6;i++){if(A[i])pool.push(A[i]);if(B[i])pool.push(B[i])}
+    for(let q=0;q<6;q++)for(let u=0;u<6;u++)pool.push(v.forms[q][u].f);}
+  const wrong=[];for(const o of pool){if(o&&o!==correct&&!wrong.includes(o))wrong.push(o);if(wrong.length===3)break}
+  const opts=shuffle([correct,...wrong]);return {opts,correct,picked:null}}
 function renderCard(){
   const k=session.queue[0];const parts=k.split('|');const v=VMAP[parts[1]];const card=S.cards[k];
   const pct=session.total?Math.round(100*session.done/session.total):0;
@@ -461,7 +483,28 @@ function renderCard(){
   }
   const el=h('div',{class:'card'},chips,prompt,hint);
   if(!session.revealed){
-    el.append(h('button',{class:'btn primary block',style:'margin-top:auto',onclick:()=>{session.revealed=true;render();if(S.settings.auto)say(spoken)}},'Show answer'));
+    const reveal=()=>{session.revealed=true;session.choices=null;render();if(S.settings.auto)say(spoken)};
+    if(session.choices){
+      el.append(h('p',{class:'rate-q'},'Which one is it?'),
+        h('div',{class:'choices'},session.choices.opts.map((o,i)=>h('button',{class:'choice',onclick:()=>{session.choices.picked=i;session.revealed=true;render();if(S.settings.auto)say(spoken)}},o))),
+        h('button',{class:'linkbtn',style:'align-self:flex-start',onclick:reveal},'Just show me the answer'));
+    }else{
+      el.append(h('div',{class:'front-btns'},
+        h('button',{class:'btn primary block',onclick:reveal},'Show answer'),
+        h('button',{class:'btn block',onclick:()=>{session.choices=makeChoices(k);render()}},'Stumped? Give me 4 choices')));
+    }
+  }else if(session.choices&&session.choices.picked!=null){
+    const C=session.choices;const right=C.opts[C.picked]===C.correct;
+    el.append(h('div',{class:'choices'},C.opts.map((o,i)=>h('button',{class:'choice '+(o===C.correct?'right':(i===C.picked?'wrong':'dim')),disabled:true},o))));
+    const ex=v.ex[session.exIdx%v.ex.length];
+    el.append(h('div',{class:'answer'},
+      h('p',{class:'rate-q',style:'margin:0;color:'+(right?'var(--green)':'var(--red)')},right?'✓ Right!':'✗ Not quite. The answer is '+answerText+'.'),
+      h('div',{class:'ans-row'},h('span',{class:'ans'},answerText),spk(spoken)),
+      parts[0]==='c'?h('div',{class:'note'},'Say it: '+spoken):null,
+      ex?h('div',{class:'example'},h('div',{},h('p',{},ex[0]),h('p',{class:'en'},ex[1])),spk(ex[0],true)):null));
+    const r=right?1:0;
+    el.append(h('p',{class:'note'},right?'You used choices, so this card comes back a little sooner than one you knew on your own.':'Say it out loud once more. This card comes back in a minute.'),
+      h('div',{class:'rate'},h('button',{class:right?'hard':'again',onclick:()=>rateCard(r)},h('span',{},'Next card'),h('small',{},'See it '+fmt(nextInterval(card,r).ms)))));
   }else{
     const ex=v.ex[session.exIdx%v.ex.length];
     const ans=h('div',{class:'answer'},
@@ -612,7 +655,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='9';
+const APP_VERSION='10';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
