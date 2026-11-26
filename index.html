@@ -383,6 +383,7 @@ function startSession(){const now=Date.now();const keys=eligibleKeys();
 function rateCard(r){const k=session.queue.shift();const c=S.cards[k];if(!c){S.day.n++}
   const ni=nextInterval(c,r);S.cards[k]={box:ni.box,due:Date.now()+ni.ms,n:(c?c.n:0)+1,l:Date.now()};
   if(r===0){session.queue.splice(Math.min(3,session.queue.length),0,k)}else session.done++;
+  if(!session.queue.length)cloudPushSoon();
   session.revealed=false;session.choices=null;session.exIdx++;save();render()}
 
 // ---------- speech ----------
@@ -456,8 +457,8 @@ function renderPractice(){
       h('div',{class:'stat'},h('b',{},c.due),h('small',{},'due for review')),
       h('div',{class:'stat'},h('b',{},c.newToday),h('small',{},'new today')),
       h('div',{class:'stat'},h('b',{},c.known),h('small',{},'of '+c.total+' learned'))),
-    c.due+c.newToday?h('button',{class:'btn yellow block',onclick:startSession},'Start practice')
-      :h('div',{style:'display:flex;flex-direction:column;gap:8px'},h('p',{class:'note',style:'margin:0;text-align:center'},'All caught up for today. Want to keep going?'),h('button',{class:'btn yellow block',onclick:giveMore},moreLabel())),
+    c.due+c.newToday?h('button',{class:'btn yellow block',onclick:e=>startWithSync(e.currentTarget)},'Start practice')
+      :h('div',{style:'display:flex;flex-direction:column;gap:8px'},h('p',{class:'note',style:'margin:0;text-align:center'},'All caught up for today. Want to keep going?'),h('button',{class:'btn yellow block',onclick:giveMore},moreLabel()),ghConf()?null:h('button',{class:'btn block',onclick:e=>{e.currentTarget.textContent='Checking…';checkNewVersion().then(n=>{if(n){try{localStorage.setItem(FLASH,JSON.stringify({summary:'',from:APP_VERSION}))}catch(x){}forceUpdate()}else render()})}},'Check for a new version')),
     h('p',{class:'note',style:'margin-top:12px'},'🔊 Tap any speaker button to hear Portuguese. It plays even in Silent mode. If you hear nothing, turn the volume up while the app is open.'),
     h('p',{class:'note',style:'margin-top:12px'},'Practising: '+[S.settings.meaning?'meanings':null,S.settings.conj?'conjugations ('+tl+')':null].filter(Boolean).join(' + ')+'. ',
       h('button',{class:'linkbtn',onclick:()=>go('settings','practise')},'Change')),
@@ -620,7 +621,7 @@ function renderSettings(){
   const gl={all:'All '+VERBS.length+' verbs',core:'Everyday verbs',gospel:'Gospel verbs',mine:'My verbs'}[st.group]||'All verbs';
   const v=pickVoice();
   const pages={
-    sync:{t:'Sync & update',d:'Version '+APP_VERSION+' · get the newest version and combine progress from your other device',b:()=>[syncPanel()]},
+    sync:{t:'Sync & update',d:'Version '+APP_VERSION+' · '+(ghConf()?'automatic sync with GitHub is on':'keep your iPhone and Mac in step'),b:()=>[syncPanel()]},
     practise:{t:'What to practise',d:tl+' · '+gl+' · '+st.newPerDay+' new a day',b:()=>[
     h('div',{class:'panel'},h('h3',{},'What to practise'),
       h('div',{class:'field'},h('span',{},'Meanings (English → Portuguese)'),h('button',{class:'toggle','aria-pressed':String(st.meaning),onclick:()=>set('meaning',!st.meaning)},st.meaning?'On':'Off')),
@@ -680,7 +681,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='12';
+const APP_VERSION='13';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
@@ -708,12 +709,13 @@ async function unpackProgress(code){code=code.trim();const m=code.match(/#sync=(
   if(kind==='z'){raw=new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}
   else if(kind!=='j')throw new Error('bad');
   const d=JSON.parse(new TextDecoder().decode(raw));if(!d||!d.cards)throw new Error('bad');return d}
-function mergeProgress(d){let updated=0,added=0;
+function mergeProgress(d){const r=mergeData(d);session=null;save();rebuildVerbs();render();return r}
+function mergeData(d){let updated=0,added=0;
   for(const [k,c] of Object.entries(d.cards||{})){const m=S.cards[k];
     if(!m){S.cards[k]=c;added++}else if((c.n||0)>(m.n||0)||((c.n||0)===(m.n||0)&&(c.l||0)>(m.l||0))){S.cards[k]=c;updated++}}
   let verbs=0;for(const cv of (d.custom||[])){if(cv&&cv.inf&&!S.custom.some(x=>x.inf===cv.inf)&&!BASE_VERBS.some(x=>x.inf===cv.inf)){S.custom.push(cv);verbs++}}
   if(d.day&&d.day.d===today()){newLeft();S.day.n=Math.max(S.day.n,d.day.n||0)}
-  session=null;save();rebuildVerbs();render();return {added,updated,verbs}}
+  rebuildVerbs();return {added,updated,verbs}}
 function mergeSummary(r){const n=r.added+r.updated;return n||r.verbs?'Done. '+n+(n===1?' card':' cards')+' brought in'+(r.verbs?', plus '+r.verbs+' of your own verb'+(r.verbs===1?'':'s'):'')+'.':'Done. This device was already up to date.'}
 async function sendProgress(out){out.textContent='Making your link…';
   try{const code=await packProgress();const url=APP_URL+'#sync='+code;out.replaceChildren();
@@ -721,13 +723,89 @@ async function sendProgress(out){out.textContent='Making your link…';
     if(navigator.share){out.append(h('button',{class:'btn primary block',onclick:()=>navigator.share({title:'My Verbos progress',url}).then(()=>done('Sent. Open it on your other device.')).catch(()=>{})},'Share link (AirDrop, Messages…)'))}
     out.append(h('button',{class:'btn block',style:'margin-top:8px',onclick:()=>{try{navigator.clipboard.writeText(url).then(()=>done('Link copied. Send it to yourself and open it on your other device.'),()=>done('Could not copy. Use the Share button instead.'))}catch(e){done('Could not copy. Use the Share button instead.')}}},'Copy link'));
   }catch(e){out.textContent='Could not make the link on this browser.'}}
+
+// ---------- automatic sync through the owner's own private GitHub repository ----------
+// The key is pasted by the person on each of their own devices and never leaves that device's storage.
+const GHK='verbos-github';
+function ghConf(){try{const c=JSON.parse(localStorage.getItem(GHK)||'null');return c&&c.owner&&c.repo&&c.token?c:null}catch(e){return null}}
+function ghSetConf(c){try{c?localStorage.setItem(GHK,JSON.stringify(c)):localStorage.removeItem(GHK)}catch(e){}}
+function ghState(){try{return JSON.parse(localStorage.getItem(GHK+'-state')||'{}')}catch(e){return {}}}
+function ghSetState(o){try{localStorage.setItem(GHK+'-state',JSON.stringify({...ghState(),...o}))}catch(e){}}
+function b64enc(str){const b=new TextEncoder().encode(str);let s='';for(let i=0;i<b.length;i+=8192)s+=String.fromCharCode.apply(null,b.subarray(i,i+8192));return btoa(s)}
+function b64dec(b64){const bin=atob(b64.replace(/\s/g,''));const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new TextDecoder().decode(a)}
+async function ghApi(c,method,body){
+  const r=await fetch('https://api.github.com/repos/'+encodeURIComponent(c.owner)+'/'+encodeURIComponent(c.repo)+'/contents/progress.json',
+    {method,cache:'no-store',headers:{'Authorization':'Bearer '+c.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
+  let j=null;try{j=await r.json()}catch(e){}return {status:r.status,j}}
+let cloudBusy=null;
+async function cloudSync(){const c=ghConf();if(!c)return null;if(cloudBusy)return cloudBusy;
+  cloudBusy=(async()=>{let result={added:0,updated:0,verbs:0};
+    for(let attempt=0;attempt<2;attempt++){
+      const g=await ghApi(c,'GET');let sha;
+      if(g.status===200&&g.j&&g.j.content){sha=g.j.sha;try{result=mergeData(JSON.parse(b64dec(g.j.content)))}catch(e){}}
+      else if(g.status===401||g.status===403){ghSetState({error:'GitHub refused the key. It may have expired. Make a new one and connect again.'});return null}
+      else if(g.status!==404){ghSetState({error:'Could not reach GitHub (error '+g.status+').'});return null}
+      S.t=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+      const payload=JSON.stringify({v:1,cards:S.cards,custom:S.custom,day:S.day,t:S.t});
+      const p=await ghApi(c,'PUT',{message:'Update Verbos progress',content:b64enc(payload),...(sha?{sha}:{})});
+      if(p.status===200||p.status===201){ghSetState({last:Date.now(),error:''});return result}
+      if(p.status!==409&&p.status!==422){ghSetState({error:'GitHub would not save the progress (error '+p.status+').'});return null}
+    }
+    ghSetState({error:'Another device was saving at the same moment. Try again.'});return null})()
+    .catch(()=>{ghSetState({error:'No internet connection, so progress was not synced this time.'});return null})
+    .finally(()=>{cloudBusy=null});
+  return cloudBusy}
+function withTimeout(p,ms){return Promise.race([p,new Promise(r=>setTimeout(()=>r(null),ms))])}
+async function checkNewVersion(){try{const r=await fetch(location.pathname+'?vcheck='+Date.now(),{cache:'no-store'});if(!r.ok)return false;
+  const m=(await r.text()).match(/APP_VERSION='(\d+)'/);return !!(m&&Number(m[1])>Number(APP_VERSION))}catch(e){return false}}
+async function startWithSync(btn){
+  if(btn){btn.disabled=true;btn.textContent='Syncing…'}
+  const [newer,res]=await Promise.all([withTimeout(checkNewVersion(),5000),withTimeout(cloudSync(),8000)]);
+  const summary=res&&(res.added+res.updated+res.verbs)?mergeSummary(res):'';
+  if(newer){try{localStorage.setItem(FLASH,JSON.stringify({summary,from:APP_VERSION,autostart:true}))}catch(e){}forceUpdate();return}
+  save();rebuildVerbs();startSession()}
+function cloudPushSoon(){if(ghConf())setTimeout(()=>cloudSync().then(()=>{if(currentTab==='settings')render()}),300)}
 const FLASH='verbos-flash';
 function syncAndUpdate(summary){try{localStorage.setItem(FLASH,JSON.stringify({summary:summary||'',from:APP_VERSION}))}catch(e){}forceUpdate()}
 function showFlash(){let f=null;try{f=JSON.parse(localStorage.getItem(FLASH)||'null');localStorage.removeItem(FLASH)}catch(e){}
-  if(!f)return;const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet'},h('h3',{},'All synced'),
+  if(!f)return;const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet'},h('h3',{},f.autostart?'Updated':'All synced'),
     h('p',{class:'ok',style:'margin:0'},APP_VERSION!==f.from?'Updated to version '+APP_VERSION+'.':'You have the newest version ('+APP_VERSION+').'),
     f.summary?h('p',{class:'ok',style:'margin:0'},f.summary):null,
-    h('button',{class:'btn primary block',onclick:()=>{bg.remove();go('practice')}},'Start practising')));document.body.append(bg)}
+    h('button',{class:'btn primary block',onclick:()=>{bg.remove();go('practice');if(f.autostart){const c=counts();if(c.due+c.newToday)startSession()}}},'Start practising')));document.body.append(bg)}
+function ghPanel(){
+  const c=ghConf(),st=ghState();
+  if(c){const status=h('p',{class:'note',style:'margin:0'},st.error?'⚠ '+st.error:(st.last?'Last synced '+new Date(st.last).toLocaleString([], {weekday:'short',hour:'numeric',minute:'2-digit'})+'.':'Not synced yet.'));
+    const btn=h('button',{class:'btn yellow block',onclick:async()=>{btn.textContent='Syncing…';btn.disabled=true;
+      const [newer,res]=await Promise.all([withTimeout(checkNewVersion(),5000),withTimeout(cloudSync(),8000)]);
+      const summary=res?(res.added+res.updated+res.verbs?mergeSummary(res):'Progress is up to date on GitHub.'):'';
+      if(newer){try{localStorage.setItem(FLASH,JSON.stringify({summary,from:APP_VERSION}))}catch(e){}forceUpdate();return}
+      session=null;render();if(res){const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet'},h('h3',{},'All synced'),h('p',{class:'ok',style:'margin:0'},'You have the newest version ('+APP_VERSION+').'),h('p',{class:'ok',style:'margin:0'},summary),h('button',{class:'btn primary block',onclick:()=>bg.remove()},'OK')));document.body.append(bg)}}},'Sync now');
+    const off=h('button',{class:'linkbtn',onclick:()=>{if(off.dataset.sure!=='1'){off.dataset.sure='1';off.textContent='Tap again to disconnect this device';return}ghSetConf(null);ghSetState({last:0,error:''});render()}},'Disconnect this device');
+    return h('div',{class:'panel'},h('h3',{},'Automatic sync ✓'),
+      h('p',{class:'note',style:'margin:0 0 8px'},'This device syncs with your private GitHub repository '+c.owner+'/'+c.repo+'. Start practice syncs and updates the app for you, and every finished session is saved.'),
+      status,h('div',{style:'margin-top:10px;display:flex;flex-direction:column;gap:8px'},btn,off))}
+  const f=(id,label,ph,type)=>h('div',{class:'efield'},h('label',{for:id},label),h('input',{id,class:'search',placeholder:ph,type:type||'text',autocapitalize:'none',autocomplete:'off',spellcheck:'false'}));
+  const msg=h('p',{class:'note',style:'margin:0'},'');
+  const go2=h('button',{class:'btn yellow block',onclick:async()=>{
+    const owner=document.getElementById('gh-owner').value.trim(),repo=document.getElementById('gh-repo').value.trim()||'verbos-progress',token=document.getElementById('gh-token').value.trim();
+    if(!owner||!token){msg.textContent='Fill in your GitHub username and the key.';return}
+    go2.textContent='Connecting…';go2.disabled=true;const c={owner,repo,token};
+    let t;try{t=await ghApi(c,'GET')}catch(e){t={status:0}}
+    if(t.status===200||t.status===404){ghSetConf(c);const r=await withTimeout(cloudSync(),8000);session=null;render();
+      const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet'},h('h3',{},'Connected'),h('p',{class:'ok',style:'margin:0'},r?(r.added+r.updated+r.verbs?mergeSummary(r):'Your progress is saved to GitHub.'):'Connected, but the first sync did not finish. Tap Sync now to try again.'),h('p',{class:'note',style:'margin:0'},'Now do the same on your other device with the same username, repository and key.'),h('button',{class:'btn primary block',onclick:()=>bg.remove()},'OK')));document.body.append(bg);return}
+    go2.disabled=false;go2.textContent='Connect';
+    msg.textContent=t.status===401?'GitHub did not accept that key. Copy it again and paste it in full.':t.status===403?'That key is not allowed to change this repository. Check step 3.':t.status===0?'Could not reach GitHub. Check your internet connection.':'GitHub could not find '+owner+'/'+repo+'. Check the username and repository name.'}},'Connect');
+  return h('div',{class:'panel'},h('h3',{},'Automatic sync with GitHub'),
+    h('p',{class:'note',style:'margin:0 0 8px'},'Keep your iPhone and Mac in step automatically. Your progress is saved in a private repository on your own GitHub account, and only devices you connect can reach it. Do this once on each of your devices.'),
+    h('details',{class:'why'},h('summary',{},'Set-up steps (about 5 minutes, once)'),h('ol',{},
+      h('li',{},'On github.com, create a new ',h('b',{},'private'),' repository named ',h('b',{},'verbos-progress'),'. Leave it empty.'),
+      h('li',{},'Go to Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.'),
+      h('li',{},'Name it Verbos. Under Repository access choose Only select repositories → verbos-progress. Under Permissions → Repository permissions, set Contents to Read and write. Pick an expiration (1 year is fine), then Generate token.'),
+      h('li',{},'Copy the key (it starts with github_pat_). Save it in your password manager or Notes, because you will paste it on each device.'),
+      h('li',{},'Fill in the boxes below and tap Connect. Then do the same on your other device.'))),
+    h('div',{style:'display:flex;flex-direction:column;gap:8px;margin-top:10px'},
+      f('gh-owner','Your GitHub username','your-username'),f('gh-repo','Repository','verbos-progress'),f('gh-token','Key (fine-grained token)','github_pat_…','password'),msg,go2),
+    h('p',{class:'note'},'The key stays on this device only. It is never shared with other people who use the app or included in progress links. It can only reach the one repository you chose.'))}
 function syncPanel(){
   const out=h('div',{});const msg=h('p',{class:'note',style:'margin:0;color:var(--red)'},'');
   const box=h('textarea',{id:'synccode',rows:2,class:'search',placeholder:'Paste a progress link from your other device (optional)',style:'resize:vertical'});
@@ -736,13 +814,13 @@ function syncPanel(){
     if(!txt){syncAndUpdate('');return}
     let d;try{d=await unpackProgress(txt)}catch(e){msg.textContent='That does not look like a Verbos progress link. Copy the whole link and try again, or clear the box to just update.';syncBtn.textContent='Sync now';return}
     syncAndUpdate(mergeSummary(mergeProgress(d)))}},'Sync now');
-  return h('div',{class:'panel',id:'sync-panel'},h('h3',{},'Sync & update'),
+  return h('div',{},ghPanel(),h('div',{class:'panel',id:'sync-panel'},h('h3',{},ghConf()?'Sync by link (backup)':'Sync & update'),
     h('p',{class:'note',style:'margin:0 0 10px'},'App version '+APP_VERSION+'. Sync now always loads the newest version of the app. If you paste a progress link from your other device, it also combines that progress with this one, keeping whichever is further along for each card.'),
     h('div',{style:'display:flex;flex-direction:column;gap:8px'},box,msg,syncBtn),
     h('h4',{},'Send this device’s progress'),
     h('p',{class:'note',style:'margin:0 0 8px'},'Do this on the device you practised on last. Send the link to yourself, then paste it in the box above on your other device.'),
     h('button',{class:'btn block',onclick:()=>sendProgress(out)},'Send my progress'),out,
-    h('p',{class:'note'},'On the other device, press and hold the link and tap Copy rather than tapping it. Tapping opens Safari, which keeps separate progress from your Verbos icon. Your progress is never uploaded anywhere. Only send the link to yourself.'))}
+    h('p',{class:'note'},'On the other device, press and hold the link and tap Copy rather than tapping it. Tapping opens Safari, which keeps separate progress from your Verbos icon. Only send the link to yourself.')))}
 
 async function checkSyncLink(){const m=location.hash.match(/^#sync=([A-Za-z0-9_-]+)/);if(!m)return;
   let d;try{d=await unpackProgress(m[1])}catch(e){history.replaceState(null,'',location.pathname);return}
@@ -814,6 +892,7 @@ function go(tab,page){currentTab=tab;guiaPage=tab==='settings'?(page||null):guia
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
 render();
 showFlash();
+if(ghConf())withTimeout(cloudSync(),8000).then(r=>{if(r&&(r.added+r.updated+r.verbs)&&!session)render()});
 </script>
 
 </body>
