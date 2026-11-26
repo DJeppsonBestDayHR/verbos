@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#26307a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Verbos">
+<meta name="description" content="Flashcards for 44 Portuguese verbs, with pronunciation and Mozambican example sentences.">
+<meta property="og:title" content="Verbos MZ">
+<meta property="og:description" content="44 Portuguese verbs · flashcards, pronunciation and Mozambican examples">
+<meta property="og:image" content="https://djeppsonbestdayhr.github.io/verbos/thumb.png">
+<meta property="og:url" content="https://djeppsonbestdayhr.github.io/verbos/">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Verbos de Moçambique</title>
+</head>
+<body>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-screen phone app — sticky header, scrolling view, bottom tab bar. Palette drawn from capulana cloth: indigo ground, maize yellow, palm green. */
+:root{
+  --bg:#f3f4f8; --surface:#ffffff; --surface-2:#e8eaf3; --fg:#171a2e; --muted:#5a5f7a; --line:#d5d8e6;
+  --accent:#e5a50a; --accent-ink:#1b1400; --brand:#26307a; --brand-ink:#ffffff; --green:#0e7a4f; --red:#b3261e; --orange:#b85c00;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Inter", -apple-system, system-ui, sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1122; --surface:#191c33; --surface-2:#232746; --fg:#eceefb; --muted:#a2a7c6; --line:#2f3456;
+  --accent:#f2b630; --accent-ink:#1b1400; --brand:#8d97ff; --brand-ink:#0f1122; --green:#4fd09a; --red:#ff8a80; --orange:#ffb066; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1122; --surface:#191c33; --surface-2:#232746; --fg:#eceefb; --muted:#a2a7c6; --line:#2f3456;
+  --accent:#f2b630; --accent-ink:#1b1400; --brand:#8d97ff; --brand-ink:#0f1122; --green:#4fd09a; --red:#ff8a80; --orange:#ffb066; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.app{display:flex;flex-direction:column;min-height:100%;max-width:560px;margin:0 auto}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+h1{font:800 22px/1.1 var(--display);margin:0;letter-spacing:-.01em}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);font-size:13px}
+main{flex:1;padding-block:4px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs button{flex:1;max-width:186px;background:none;border:0;color:var(--muted);font:600 12px var(--body);padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button[aria-current="page"]{color:var(--brand)}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:0;border-radius:12px;padding:14px 18px;font:600 16px var(--body);cursor:pointer;background:var(--surface-2);color:var(--fg)}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.yellow{background:var(--accent);color:var(--accent-ink)}
+.btn.block{width:100%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.stat b{display:block;font:800 26px/1 var(--display);font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-size:12px}
+.lede{color:var(--muted);margin:0 0 14px;max-width:60ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px 20px;min-height:340px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.card::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(90deg,var(--accent) 0 18px,var(--brand) 18px 26px,var(--green) 26px 40px,var(--brand) 40px 48px)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.chip.t{background:var(--brand);color:var(--brand-ink)}
+.prompt{font:700 34px/1.1 var(--display);letter-spacing:-.01em;margin:6px 0 0;text-wrap:balance}
+.prompt .cue{color:var(--muted);font-weight:500}
+.hint{color:var(--muted);font-size:16px}
+.answer{border-top:1px dashed var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.ans-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ans{font:800 38px/1.05 var(--display);color:var(--green);overflow-wrap:anywhere}
+.speak{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);display:grid;place-items:center;cursor:pointer}
+.speak svg{width:20px;height:20px}
+.speak.sm{width:34px;height:34px}
+.speak.sm svg{width:16px;height:16px}
+.example{background:var(--surface-2);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:flex-start}
+.example p{margin:0}
+.example .en{color:var(--muted);font-size:13px}
+.rate{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+.rate-q{font:700 18px/1.2 var(--display);margin:6px 0 0}
+.rate-q + .note{margin:-4px 0 2px}
+.rate button{border:0;border-radius:12px;padding:12px 14px;font:600 16px var(--body);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}
+.rate button small{font-weight:500;font-size:13px;opacity:.9;text-align:right;flex:none}
+.rate .again{background:var(--red);color:var(--bg)} .rate .hard{background:var(--orange);color:var(--bg)} .rate .good{background:var(--green);color:var(--bg)} .rate .easy{background:var(--brand);color:var(--brand-ink)}
+.progress{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin:0 0 12px}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.row-between{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.linkbtn{background:none;border:0;color:var(--brand);font:600 14px var(--body);cursor:pointer;padding:6px 0}
+.search{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:16px var(--body)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.filters button,.toggle{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 12px;font:500 13px var(--body);cursor:pointer}
+.filters button[aria-pressed="true"],.toggle[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.vlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.vlist button{width:100%;text-align:left;display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:0;color:var(--fg);cursor:pointer;font:inherit}
+.vlist .inf{font:700 18px var(--display);min-width:0}
+.vlist .mean{color:var(--muted);font-size:13px;display:block;font-family:var(--body);font-weight:400}
+.vlist .meter{margin-left:auto;display:flex;gap:2px;flex:none}
+.vlist .meter i{width:6px;height:16px;border-radius:2px;background:var(--surface-2)}
+.vlist .meter i.on{background:var(--green)}
+.tag{font:600 10px/1 var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--orange);margin-left:6px;vertical-align:2px}
+.detail h2{font:800 36px/1 var(--display);margin:4px 0 4px;display:flex;align-items:center;gap:10px}
+.detail h3{font:700 13px var(--body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:22px 0 8px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:12px;position:sticky;left:0;background:var(--surface)}
+thead th{position:static}
+td button{background:none;border:0;color:var(--fg);font:inherit;cursor:pointer;padding:2px 0;text-decoration:underline dotted var(--muted);text-underline-offset:3px}
+tr:last-child td,tr:last-child th{border-bottom:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.panel h3{font:700 17px var(--display);margin:0 0 8px}
+.panel p,.panel li{max-width:62ch}
+.panel ol,.panel ul{padding-left:20px;margin:6px 0}
+.field{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.field:first-of-type{border-top:0}
+select,input[type=number]{font:15px var(--body);padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);max-width:60%}
+.wrap{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.note{font-size:13px;color:var(--muted)}
+.done{text-align:center;padding:30px 10px}
+.done b{font:800 30px var(--display);display:block;margin-bottom:6px}
+details.why{margin-top:8px}
+details.why summary{color:var(--brand);font-weight:600;font-size:14px;cursor:pointer;padding:4px 0}
+details.why .tbody{margin-top:8px}
+.tbody{display:flex;flex-direction:column;gap:10px}
+.tbody ul{margin:0;padding-left:20px}
+.tbody p{margin:0}
+.when{font:700 17px/1.3 var(--display)}
+.clues{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.clues .chip{text-transform:none;letter-spacing:0;font-size:12px}
+.tip{background:color-mix(in srgb,var(--accent) 18%,transparent);border-radius:10px;padding:10px 12px;font-size:14px}
+.tense .thead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tense .thead h3{margin:0}
+.like{margin:6px 0 10px;color:var(--muted)}
+.like b{color:var(--fg)}
+.tense{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 60px)}
+.panel .chooser{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1px}
+.chooser a{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);color:var(--fg);text-decoration:none}
+.chooser li:first-child a{border-top:0}
+.chooser b{color:var(--brand);text-align:right;flex:none;max-width:45%}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.panel h4{font:700 15px var(--display);margin:14px 0 6px}
+.panel ol li{margin:4px 0}
+.appicon{width:84px;height:84px;border-radius:19px;flex:none;-webkit-touch-callout:default;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.iconrow{display:flex;align-items:center;gap:14px;margin:4px 0}
+.linktxt{font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
+.sharebtn{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:6px 12px;font:600 13px var(--body);cursor:pointer}
+.sharebtn svg{width:16px;height:16px}
+.sheet-bg{position:fixed;inset:0;z-index:20;background:rgba(10,12,30,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);color:var(--fg);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:20px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-sizing:border-box;display:flex;flex-direction:column;gap:12px}
+.sheet h3{font:800 20px var(--display);margin:0}
+.sheet .link{font:15px/1.4 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:10px;padding:12px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
+.sheet .ok{color:var(--green);font-weight:600;margin:0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <h1>Verbos <span>MZ</span></h1>
+    <div class="hdr-r"><div class="sub" id="sync">Saved on this phone</div><button class="sharebtn" id="sharebtn" aria-label="Share this app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Share</button></div>
+  </header>
+  <main id="view"></main>
+  <nav class="tabs" aria-label="Sections">
+    <button data-tab="practice" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>Praticar</button>
+    <button data-tab="verbs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Verbos</button>
+    <button data-tab="tenses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tempos</button>
+    <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Guia</button>
+  </nav>
+</div>
+
+<script>
+const RAW = {"order":["estar","ser","ter","ir","querer","dar","dizer","fazer","saber","sair","trazer","ler","ouvir","pedir","ver","vir","poder","pôr","haver","dever","ficar","deixar","levar","achar","sentir","precisar","chegar","encontrar","receber","seguir","abençoar","acreditar","adorar","arrepender-se","crer","obedecer","orar","pecar","perdoar","ressuscitar","restaurar","salvar","servir","testificar"],"v":{"estar":[[["estou","I am"],["estive","I was"],["estava","I was / I used to be"],["esteja","that I be"],["estivesse","if I were"],["estiver","if / when I am"]],[["estás","you are"],["estiveste","you were"],["estavas","you were / used to be"],["estejas","that you be"],["estivesses","if you were"],["estiveres","if / when you are"]],[["está","he/she is · you are"],["esteve","he/she was · you were"],["estava","he/she was · you were"],["esteja","that he/she be · that you be"],["estivesse","if he/she were · if you were"],["estiver","if / when he/she is · if / when you are"]],[["estamos","we are"],["estivemos","we were"],["estávamos","we were / used to be"],["estejamos","that we be"],["estivéssemos","if we were"],["estivermos","if / when we are"]],[["estais","you (plural) are"],["estivestes","you (plural) were"],["estáveis","you (plural) were / used to be"],["estejais","that you (plural) be"],["estivésseis","if you (plural) were"],["estiverdes","if / when you (plural) are"]],[["estão","they are · you all are"],["estiveram","they were · you all were"],["estavam","they were / used to be"],["estejam","that they be · that you all be"],["estivessem","if they were · if you all were"],["estiverem","if / when they are · if / when you all are"]]],"ser":[[["sou","I am"],["fui","I was"],["era","I was / I used to be"],["seja","that I be"],["fosse","if I were"],["for","if / when I am"]],[["és","you are"],["foste","you were"],["eras","you were / used to be"],["sejas","that you be"],["fosses","if you were"],["fores","if / when you are"]],[["é","he/she is · you are"],["foi","he/she was · you were"],["era","he/she was · you were"],["seja","that he/she be · that you be"],["fosse","if he/she were · if you were"],["for","if / when he/she is · if / when you are"]],[["somos","we are"],["fomos","we were"],["éramos","we were / used to be"],["sejamos","that we be"],["fôssemos","if we were"],["formos","if / when we are"]],[["sois","you (plural) are"],["fostes","you (plural) were"],["éreis","you (plural) were / used to be"],["sejais","that you (plural) be"],["fôsseis","if you (plural) were"],["fordes","if / when you (plural) are"]],[["são","they are · you all are"],["foram","they were · you all were"],["eram","they were / used to be"],["sejam","that they be · that you all be"],["fossem","if they were · if you all were"],["forem","if / when they are · if / when you all are"]]],"ter":[[["tenho","I have"],["tive","I had"],["tinha","I had / I used to have"],["tenha","that I have"],["tivesse","if I had"],["tiver","if / when I have"]],[["tens","you have"],["tiveste","you had"],["tinhas","you had / used to have"],["tenhas","that you have"],["tivesses","if you had"],["tiveres","if / when you have"]],[["tem","he/she has · you have"],["teve","he/she had · you had"],["tinha","he/she had · you had"],["tenha","that he/she have · that you have"],["tivesse","if he/she had · if you had"],["tiver","if / when he/she has · if / when you have"]],[["temos","we have"],["tivemos","we had"],["tínhamos","we had / used to have"],["tenhamos","that we have"],["tivéssemos","if we had"],["tivermos","if / when we have"]],[["tendes","you (plural) have"],["tivestes","you (plural) had"],["tínheis","you (plural) had / used to have"],["tenhais","that you (plural) have"],["tivésseis","if you (plural) had"],["tiverdes","if / when you (plural) have"]],[["têm","they have · you all have"],["tiveram","they had · you all had"],["tinham","they had / used to have"],["tenham","that they have · that you all have"],["tivessem","if they had · if you all had"],["tiverem","if / when they have · if / when you all have"]]],"ir":[[["vou","I go / I am going"],["fui","I went"],["ia","I went / I used to go"],["vá","that I go"],["fosse","if I went"],["for","if / when I go"]],[["vais","you go / you are going"],["foste","you went"],["ias","you went / used to go"],["vás","that you go"],["fosses","if you went"],["fores","if / when you go"]],[["vai","he/she goes · you go"],["foi","he/she went · you went"],["ia","he/she went · you went"],["vá","that he/she go · that you go"],["fosse","if he/she went · if you went"],["for","if / when he/she goes · if / when you go"]],[["vamos","we go / we are going"],["fomos","we went"],["íamos","we went / used to go"],["vamos","that we go"],["fôssemos","if we went"],["formos","if / when we go"]],[["ides","you (plural) go"],["fostes","you (plural) went"],["íeis","you (plural) went / used to go"],["vades","that you (plural) go"],["fôsseis","if you (plural) went"],["fordes","if / when you (plural) go"]],[["vão","they go · you all go"],["foram","they went · you all went"],["iam","they went / used to go"],["vão","that they go · that you all go"],["fossem","if they went · if you all went"],["forem","if / when they go · if / when you all go"]]],"querer":[[["quero","I want"],["quis","I wanted"],["queria","I wanted / I used to want"],["queira","that I want"],["quisesse","if I wanted"],["quiser","if / when I want"]],[["queres","you want"],["quiseste","you wanted"],["querias","you wanted / used to want"],["queiras","that you want"],["quisesses","if you wanted"],["quiseres","if / when you want"]],[["quer","he/she wants · you want"],["quis","he/she wanted · you wanted"],["queria","he/she wanted · you wanted"],["queira","that he/she want · that you want"],["quisesse","if he/she wanted · if you wanted"],["quiser","if / when he/she wants · if / when you want"]],[["queremos","we want"],["quisemos","we wanted"],["queríamos","we wanted / used to want"],["queiramos","that we want"],["quiséssemos","if we wanted"],["quisermos","if / when we want"]],[["quereis","you (plural) want"],["quisestes","you (plural) wanted"],["queríeis","you (plural) wanted / used to want"],["queirais","that you (plural) want"],["quisésseis","if you (plural) wanted"],["quiserdes","if / when you (plural) want"]],[["querem","they want · you all want"],["quiseram","they wanted · you all wanted"],["queriam","they wanted / used to want"],["queiram","that they want · that you all want"],["quisessem","if they wanted · if you all wanted"],["quiserem","if / when they want · if / when you all want"]]],"dar":[[["dou","I give"],["dei","I gave"],["dava","I gave / I used to give"],["dê","that I give"],["desse","if I gave"],["der","if / when I give"]],[["dás","you give"],["deste","you gave"],["davas","you gave / used to give"],["dês","that you give"],["desses","if you gave"],["deres","if / when you give"]],[["dá","he/she gives · you give"],["deu","he/she gave · you gave"],["dava","he/she gave · you gave"],["dê","that he/she give · that you give"],["desse","if he/she gave · if you gave"],["der","if / when he/she gives · if / when you give"]],[["damos","we give"],["demos","we gave"],["dávamos","we gave / used to give"],["demos","that we give"],["déssemos","if we gave"],["dermos","if / when we give"]],[["dais","you (plural) give"],["destes","you (plural) gave"],["dáveis","you (plural) gave / used to give"],["deis","that you (plural) give"],["désseis","if you (plural) gave"],["derdes","if / when you (plural) give"]],[["dão","they give · you all give"],["deram","they gave · you all gave"],["davam","they gave / used to give"],["deem","that they give · that you all give"],["dessem","if they gave · if you all gave"],["derem","if / when they give · if / when you all give"]]],"dizer":[[["digo","I say"],["disse","I said"],["dizia","I said / used to say"],["diga","that I say"],["dissesse","if I said"],["disser","if / when I say"]],[["dizes","you say"],["disseste","you said"],["dizias","you said / used to say"],["digas","that you say"],["dissesses","if you said"],["disseres","if / when you say"]],[["diz","he/she says · you say"],["disse","he/she said · you said"],["dizia","he/she said · you said"],["diga","that he/she say · that you say"],["dissesse","if he/she said · if you said"],["disser","if / when he/she says · if / when you say"]],[["dizemos","we say"],["dissemos","we said"],["dizíamos","we said / used to say"],["digamos","that we say"],["disséssemos","if we said"],["dissermos","if / when we say"]],[["dizeis","you (plural) say"],["dissestes","you (plural) said"],["dizíeis","you (plural) said / used to say"],["digais","that you say"],["dissésseis","if you said"],["disserdes","if / when you say"]],[["dizem","they say · you all say"],["disseram","they said · you all said"],["diziam","they said / used to say"],["digam","that they say"],["dissessem","if they said"],["disserem","if / when they say"]]],"fazer":[[["faço","I do / make"],["fiz","I did"],["fazia","I did / used to do"],["faça","that I do"],["fizesse","if I did"],["fizer","if / when I do"]],[["fazes","you do"],["fizeste","you did"],["fazias","you did / used to do"],["faças","that you do"],["fizesses","if you did"],["fizeres","if / when you do"]],[["faz","he/she does · you do"],["fez","he/she did · you did"],["fazia","he/she did"],["faça","that he/she do"],["fizesse","if he/she did"],["fizer","if / when he/she does"]],[["fazemos","we do"],["fizemos","we did"],["fazíamos","we did / used to do"],["façamos","that we do"],["fizéssemos","if we did"],["fizermos","if / when we do"]],[["fazeis","you (plural) do"],["fizestes","you did"],["fazíeis","you did / used to do"],["façais","that you do"],["fizésseis","if you did"],["fizerdes","if / when you do"]],[["fazem","they do · you all do"],["fizeram","they did"],["faziam","they did / used to do"],["façam","that they do"],["fizessem","if they did"],["fizerem","if / when they do"]]],"saber":[[["sei","I know"],["soube","I learned"],["sabia","I knew / used to know"],["saiba","that I know"],["soubesse","if I knew"],["souber","if / when I know"]],[["sabes","you know"],["soubeste","you learned"],["sabias","you knew"],["saibas","that you know"],["soubesses","if you knew"],["souberes","if / when you know"]],[["sabe","he/she knows · you know"],["soube","he/she learned"],["sabia","he/she knew"],["saiba","that he/she know"],["soubesse","if he/she knew"],["souber","if / when he/she knows"]],[["sabemos","we know"],["soubemos","we learned"],["sabíamos","we knew"],["saibamos","that we know"],["soubéssemos","if we knew"],["soubermos","if / when we know"]],[["sabeis","you (plural) know"],["soubestes","you learned"],["sabíeis","you knew"],["saibais","that you know"],["soubésseis","if you knew"],["souberdes","if / when you know"]],[["sabem","they know · you all know"],["souberam","they learned"],["sabiam","they knew"],["saibam","that they know"],["soubessem","if they knew"],["souberem","if / when they know"]]],"sair":[[["saio","I leave"],["saí","I left"],["saía","I left / used to leave"],["saia","that I leave"],["saísse","if I left"],["sair","if / when I leave"]],[["sais","you leave"],["saíste","you left"],["saías","you left"],["saias","that you leave"],["saísses","if you left"],["saíres","if / when you leave"]],[["sai","he/she leaves · you leave"],["saiu","he/she left"],["saía","he/she left"],["saia","that he/she leave"],["saísse","if he/she left"],["sair","if / when he/she leaves"]],[["saímos","we leave"],["saímos","we left"],["saíamos","we left"],["saiamos","that we leave"],["saíssemos","if we left"],["sairmos","if / when we leave"]],[["saís","you leave"],["saístes","you left"],["saíeis","you left"],["saiais","that you leave"],["saísseis","if you left"],["sairdes","if / when you leave"]],[["saem","they leave"],["saíram","they left"],["saíam","they left"],["saiam","that they leave"],["saíssem","if they left"],["saírem","if / when they leave"]]],"trazer":[[["trago","I bring"],["trouxe","I brought"],["trazia","I brought / used to bring"],["traga","that I bring"],["trouxesse","if I brought"],["trouxer","if / when I bring"]],[["trazes","you bring"],["trouxeste","you brought"],["trazias","you brought"],["tragas","that you bring"],["trouxesses","if you brought"],["trouxeres","if / when you bring"]],[["traz","he/she brings · you bring"],["trouxe","he/she brought"],["trazia","he/she brought"],["traga","that he/she bring"],["trouxesse","if he/she brought"],["trouxer","if / when he/she brings"]],[["trazemos","we bring"],["trouxemos","we brought"],["trazíamos","we brought"],["tragamos","that we bring"],["trouxéssemos","if we brought"],["trouxermos","if / when we bring"]],[["trazeis","you bring"],["trouxestes","you brought"],["trazíeis","you brought"],["tragais","that you bring"],["trouxésseis","if you brought"],["trouxerdes","if / when you bring"]],[["trazem","they bring"],["trouxeram","they brought"],["traziam","they brought"],["tragam","that they bring"],["trouxessem","if they brought"],["trouxerem","if / when they bring"]]],"ler":[[["leio","I read"],["li","I read"],["lia","I read / used to read"],["leia","that I read"],["lesse","if I read"],["ler","if / when I read"]],[["lês","you read"],["leste","you read"],["lias","you read"],["leias","that you read"],["lesses","if you read"],["leres","if / when you read"]],[["lê","he/she reads · you read"],["leu","he/she read"],["lia","he/she read"],["leia","that he/she read"],["lesse","if he/she read"],["ler","if / when he/she reads"]],[["lemos","we read"],["lemos","we read"],["líamos","we read"],["leiamos","that we read"],["lêssemos","if we read"],["lermos","if / when we read"]],[["ledes","you read"],["lestes","you read"],["líeis","you read"],["leiais","that you read"],["lêsseis","if you read"],["lerdes","if / when you read"]],[["leem","they read · you all read"],["leram","they read"],["liam","they read"],["leiam","that they read"],["lessem","if they read"],["lerem","if / when they read"]]],"ouvir":[[["ouço","I hear"],["ouvi","I heard"],["ouvia","I heard / used to hear"],["ouça","that I hear"],["ouvisse","if I heard"],["ouvir","if / when I hear"]],[["ouves","you hear"],["ouviste","you heard"],["ouvias","you heard"],["ouças","that you hear"],["ouvisses","if you heard"],["ouvires","if / when you hear"]],[["ouve","he/she hears · you hear"],["ouviu","he/she heard"],["ouvia","he/she heard"],["ouça","that he/she hear"],["ouvisse","if he/she heard"],["ouvir","if / when he/she hears"]],[["ouvimos","we hear"],["ouvimos","we heard"],["ouvíamos","we heard"],["ouçamos","that we hear"],["ouvíssemos","if we heard"],["ouvirmos","if / when we hear"]],[["ouvis","you hear"],["ouvistes","you heard"],["ouvíeis","you heard"],["ouçais","that you hear"],["ouvísseis","if you heard"],["ouvirdes","if / when you hear"]],[["ouvem","they hear · you all hear"],["ouviram","they heard"],["ouviam","they heard"],["ouçam","that they hear"],["ouvissem","if they heard"],["ouvirem","if / when they hear"]]],"pedir":[[["peço","I ask"],["pedi","I asked"],["pedia","I asked / used to ask"],["peça","that I ask"],["pedisse","if I asked"],["pedir","if / when I ask"]],[["pedes","you ask"],["pediste","you asked"],["pedias","you asked / used to ask"],["peças","that you ask"],["pedisses","if you asked"],["pedires","if / when you ask"]],[["pede","he/she asks · you ask"],["pediu","he/she asked · you asked"],["pedia","he/she asked · you asked"],["peça","that he/she ask · that you ask"],["pedisse","if he/she asked · if you asked"],["pedir","if / when he/she asks · if / when you ask"]],[["pedimos","we ask"],["pedimos","we asked"],["pedíamos","we asked / used to ask"],["peçamos","that we ask"],["pedíssemos","if we asked"],["pedirmos","if / when we ask"]],[["pedis","you (plural) ask"],["pedistes","you asked"],["pedíeis","you asked / used to ask"],["peçais","that you ask"],["pedísseis","if you asked"],["pedirdes","if / when you ask"]],[["pedem","they ask · you all ask"],["pediram","they asked · you all asked"],["pediam","they asked / used to ask"],["peçam","that they ask · that you all ask"],["pedissem","if they asked · if you all asked"],["pedirem","if / when they ask · if / when you all ask"]]],"ver":[[["vejo","I see"],["vi","I saw"],["via","I saw / used to see"],["veja","that I see"],["visse","if I saw"],["vir","if / when I see"]],[["vês","you see"],["viste","you saw"],["vias","you saw / used to see"],["vejas","that you see"],["visses","if you saw"],["vires","if / when you see"]],[["vê","he/she sees · you see"],["viu","he/she saw · you saw"],["via","he/she saw · you saw"],["veja","that he/she see · that you see"],["visse","if he/she saw · if you saw"],["vir","if / when he/she sees · if / when you see"]],[["vemos","we see"],["vimos","we saw"],["víamos","we saw / used to see"],["vejamos","that we see"],["víssemos","if we saw"],["virmos","if / when we see"]],[["vedes","you (plural) see"],["vistes","you saw"],["víeis","you saw / used to see"],["vejais","that you see"],["vísseis","if you saw"],["virdes","if / when you see"]],[["veem","they see · you all see"],["viram","they saw · you all saw"],["viam","they saw / used to see"],["vejam","that they see · that you all see"],["vissem","if they saw · if you all saw"],["virem","if / when they see · if / when you all see"]]],"vir":[[["venho","I come"],["vim","I came"],["vinha","I came / used to come"],["venha","that I come"],["viesse","if I came"],["vier","if / when I come"]],[["vens","you come"],["vieste","you came"],["vinhas","you came / used to come"],["venhas","that you come"],["viesses","if you came"],["vieres","if / when you come"]],[["vem","he/she comes · you come"],["veio","he/she came · you came"],["vinha","he/she came · you came"],["venha","that he/she come · that you come"],["viesse","if he/she came · if you came"],["vier","if / when he/she comes · if / when you come"]],[["vimos","we come"],["viemos","we came"],["vínhamos","we came / used to come"],["venhamos","that we come"],["viéssemos","if we came"],["viermos","if / when we come"]],[["vindes","you (plural) come"],["viestes","you came"],["vínheis","you came / used to come"],["venhais","that you come"],["viésseis","if you came"],["vierdes","if / when you come"]],[["vêm","they come · you all come"],["vieram","they came · you all came"],["vinham","they came / used to come"],["venham","that they come · that you all come"],["viessem","if they came · if you all came"],["vierem","if / when they come · if / when you all come"]]],"poder":[[["posso","I can"],["pude","I could / managed to"],["podia","I could / used to be able"],["possa","that I can"],["pudesse","if I could"],["puder","if / when I can"]],[["podes","you can"],["pudeste","you could"],["podias","you could"],["possas","that you can"],["pudesses","if you could"],["puderes","if / when you can"]],[["pode","he/she can · you can"],["pôde","he/she could · you could"],["podia","he/she could · you could"],["possa","that he/she can · that you can"],["pudesse","if he/she could · if you could"],["puder","if / when he/she can · if / when you can"]],[["podemos","we can"],["pudemos","we could"],["podíamos","we could / used to be able"],["possamos","that we can"],["pudéssemos","if we could"],["pudermos","if / when we can"]],[["podeis","you (plural) can"],["pudestes","you could"],["podíeis","you could"],["possais","that you can"],["pudésseis","if you could"],["puderdes","if / when you can"]],[["podem","they can · you all can"],["puderam","they could · you all could"],["podiam","they could"],["possam","that they can · that you all can"],["pudessem","if they could · if you all could"],["puderem","if / when they can · if / when you all can"]]],"pôr":[[["ponho","I put"],["pus","I put"],["punha","I put / used to put"],["ponha","that I put"],["pusesse","if I put"],["puser","if / when I put"]],[["pões","you put"],["puseste","you put"],["punhas","you put / used to put"],["ponhas","that you put"],["pusesses","if you put"],["puseres","if / when you put"]],[["põe","he/she puts · you put"],["pôs","he/she put · you put"],["punha","he/she put · you put"],["ponha","that he/she put · that you put"],["pusesse","if he/she put · if you put"],["puser","if / when he/she puts · if / when you put"]],[["pomos","we put"],["pusemos","we put"],["púnhamos","we put / used to put"],["ponhamos","that we put"],["puséssemos","if we put"],["pusermos","if / when we put"]],[["pondes","you (plural) put"],["pusestes","you put"],["púnheis","you put / used to put"],["ponhais","that you put"],["pusésseis","if you put"],["puserdes","if / when you put"]],[["põem","they put · you all put"],["puseram","they put · you all put"],["punham","they put / used to put"],["ponham","that they put · that you all put"],["pusessem","if they put · if you all put"],["puserem","if / when they put · if / when you all put"]]],"haver":[[["hei","I have / there is"],["houve","there was"],["havia","there was / used to be"],["haja","that there be"],["houvesse","if there were"],["houver","if there is"]],[["hás","you have"],["houveste","you had"],["havias","you used to have"],["hajas","that you have"],["houvesses","if you had"],["houveres","if you have"]],[["há","there is"],["houve","there was"],["havia","there was"],["haja","that there be"],["houvesse","if there were"],["houver","if there is"]],[["havemos","we have"],["houvemos","we had"],["havíamos","we used to have"],["hajamos","that we have"],["houvéssemos","if we had"],["houvermos","if we have"]],[["haveis","you have"],["houvestes","you had"],["havíeis","you used to have"],["hajais","that you have"],["houvésseis","if you had"],["houverdes","if you have"]],[["hão","they have"],["houveram","they had"],["haviam","they used to have"],["hajam","that they have"],["houvessem","if they had"],["houverem","if they have"]]],"dever":[[["devo","I should / must"],["devi","I had to / I owed"],["devia","I used to have to"],["deva","that I should"],["devesse","if I should"],["dever","if I should"]],[["deves","you should"],["deveste","you had to"],["devias","you used to have to"],["devas","that you should"],["devesses","if you should"],["deveres","if you should"]],[["deve","he/she should"],["deveu","he/she had to"],["devia","he/she used to have to"],["deva","that he/she should"],["devesse","if he/she should"],["dever","if he/she should"]],[["devemos","we should"],["devemos","we had to"],["devíamos","we used to have to"],["devamos","that we should"],["devêssemos","if we should"],["devermos","if we should"]],[["deveis","you should"],["devestes","you had to"],["devíeis","you used to have to"],["devais","that you should"],["devêsseis","if you should"],["deverdes","if you should"]],[["devem","they should"],["deveram","they had to"],["deviam","they used to have to"],["devam","that they should"],["devessem","if they should"],["deverem","if they should"]]],"ficar":[[["fico","I stay / become"],["fiquei","I stayed"],["ficava","I used to stay"],["fique","that I stay"],["ficasse","if I stayed"],["ficar","if I stay"]],[["ficas","you stay"],["ficaste","you stayed"],["ficavas","you used to stay"],["fiques","that you stay"],["ficasses","if you stayed"],["ficares","if you stay"]],[["fica","he stays"],["ficou","he stayed"],["ficava","he used to stay"],["fique","that he stay"],["ficasse","if he stayed"],["ficar","if he stays"]],[["ficamos","we stay"],["ficámos","we stayed"],["ficávamos","we used to stay"],["fiquemos","that we stay"],["ficássemos","if we stayed"],["ficarmos","if we stay"]],[["ficais","you stay"],["ficastes","you stayed"],["ficáveis","you used to stay"],["fiqueis","that you stay"],["ficásseis","if you stayed"],["ficardes","if you stay"]],[["ficam","they stay"],["ficaram","they stayed"],["ficavam","they used to stay"],["fiquem","that they stay"],["ficassem","if they stayed"],["ficarem","if they stay"]]],"deixar":[[["deixo","I leave / allow"],["deixei","I left"],["deixava","I used to leave"],["deixe","that I leave"],["deixasse","if I left"],["deixar","if I leave"]],[["deixas","you leave"],["deixaste","you left"],["deixavas","you used to leave"],["deixes","that you leave"],["deixasses","if you left"],["deixares","if you leave"]],[["deixa","he leaves"],["deixou","he left"],["deixava","he used to leave"],["deixe","that he leave"],["deixasse","if he left"],["deixar","if he leaves"]],[["deixamos","we leave"],["deixámos","we left"],["deixávamos","we used to leave"],["deixemos","that we leave"],["deixássemos","if we left"],["deixarmos","if we leave"]],[["deixais","you leave"],["deixastes","you left"],["deixáveis","you used to leave"],["deixeis","that you leave"],["deixásseis","if you left"],["deixardes","if you leave"]],[["deixam","they leave"],["deixaram","they left"],["deixavam","they used to leave"],["deixem","that they leave"],["deixassem","if they left"],["deixarem","if they leave"]]],"levar":[[["levo","I take"],["levei","I took"],["levava","I used to take"],["leve","that I take"],["levasse","if I took"],["levar","if I take"]],[["levas","you take"],["levaste","you took"],["levavas","you used to take"],["leves","that you take"],["levasses","if you took"],["levares","if you take"]],[["leva","he takes"],["levou","he took"],["levava","he used to take"],["leve","that he take"],["levasse","if he took"],["levar","if he takes"]],[["levamos","we take"],["levámos","we took"],["levávamos","we used to take"],["levemos","that we take"],["levássemos","if we took"],["levarmos","if we take"]],[["levais","you take"],["levastes","you took"],["leváveis","you used to take"],["leveis","that you take"],["levásseis","if you took"],["levardes","if you take"]],[["levam","they take"],["levaram","they took"],["levavam","they used to take"],["levem","that they take"],["levassem","if they took"],["levarem","if they take"]]],"achar":[[["acho","I think / find"],["achei","I thought"],["achava","I used to think"],["ache","that I think"],["achasse","if I thought"],["achar","if I think"]],[["achas","you think"],["achaste","you thought"],["achavas","you used to think"],["aches","that you think"],["achasses","if you thought"],["achares","if you think"]],[["acha","he thinks"],["achou","he thought"],["achava","he used to think"],["ache","that he think"],["achasse","if he thought"],["achar","if he thinks"]],[["achamos","we think"],["achámos","we thought"],["achávamos","we used to think"],["achemos","that we think"],["achássemos","if we thought"],["acharmos","if we think"]],[["achais","you think"],["achastes","you thought"],["acháveis","you used to think"],["acheis","that you think"],["achásseis","if you thought"],["achardes","if you think"]],[["acham","they think"],["acharam","they thought"],["achavam","they used to think"],["achem","that they think"],["achassem","if they thought"],["acharem","if they think"]]],"sentir":[[["sinto","I feel"],["senti","I felt"],["sentia","I used to feel"],["sinta","that I feel"],["sentisse","if I felt"],["sentir","if I feel"]],[["sentes","you feel"],["sentiste","you felt"],["sentias","you used to feel"],["sintas","that you feel"],["sentisses","if you felt"],["sentires","if you feel"]],[["sente","he feels"],["sentiu","he felt"],["sentia","he used to feel"],["sinta","that he feel"],["sentisse","if he felt"],["sentir","if he feels"]],[["sentimos","we feel"],["sentimos","we felt"],["sentíamos","we used to feel"],["sintamos","that we feel"],["sentíssemos","if we felt"],["sentirmos","if we feel"]],[["sentis","you feel"],["sentistes","you felt"],["sentíeis","you used to feel"],["sintais","that you feel"],["sentísseis","if you felt"],["sentirdes","if you feel"]],[["sentem","they feel · you all feel"],["sentiram","they felt · you all felt"],["sentiam","they used to feel"],["sintam","that they feel"],["sentissem","if they felt"],["sentirem","if / when they feel"]]],"precisar":[[["preciso","I need"],["precisei","I needed"],["precisava","I used to need"],["precise","that I need"],["precisasse","if I needed"],["precisar","if I need"]],[["precisas","you need"],["precisaste","you needed"],["precisavas","you used to need"],["precises","that you need"],["precisasses","if you needed"],["precisares","if you need"]],[["precisa","he needs"],["precisou","he needed"],["precisava","he used to need"],["precise","that he need"],["precisasse","if he needed"],["precisar","if he needs"]],[["precisamos","we need"],["precisámos","we needed"],["precisávamos","we used to need"],["precisemos","that we need"],["precisássemos","if we needed"],["precisarmos","if we need"]],[["precisais","you need"],["precisastes","you needed"],["precisáveis","you used to need"],["preciseis","that you need"],["precisásseis","if you needed"],["precisardes","if you need"]],[["precisam","they need"],["precisaram","they needed"],["precisavam","they used to need"],["precisem","that they need"],["precisassem","if they needed"],["precisarem","if they need"]]],"chegar":[[["chego","I arrive"],["cheguei","I arrived"],["chegava","I used to arrive"],["chegue","that I arrive"],["chegasse","if I arrived"],["chegar","if I arrive"]],[["chegas","you arrive"],["chegaste","you arrived"],["chegavas","you used to arrive"],["chegues","that you arrive"],["chegasses","if you arrived"],["chegares","if you arrive"]],[["chega","he/she arrives"],["chegou","he/she arrived"],["chegava","he/she used to arrive"],["chegue","that he/she arrive"],["chegasse","if he/she arrived"],["chegar","if he/she arrives"]],[["chegamos","we arrive"],["chegámos","we arrived"],["chegávamos","we used to arrive"],["cheguemos","that we arrive"],["chegássemos","if we arrived"],["chegarmos","if we arrive"]],[["chegais","you arrive"],["chegastes","you arrived"],["chegáveis","you used to arrive"],["chegueis","that you arrive"],["chegásseis","if you arrived"],["chegardes","if you arrive"]],[["chegam","they arrive"],["chegaram","they arrived"],["chegavam","they used to arrive"],["cheguem","that they arrive"],["chegassem","if they arrived"],["chegarem","if they arrive"]]],"encontrar":[[["encontro","I find / meet"],["encontrei","I found"],["encontrava","I used to find"],["encontre","that I find"],["encontrasse","if I found"],["encontrar","if I find"]],[["encontras","you find"],["encontraste","you found"],["encontravas","you used to find"],["encontres","that you find"],["encontrasses","if you found"],["encontrares","if you find"]],[["encontra","he finds"],["encontrou","he found"],["encontrava","he used to find"],["encontre","that he find"],["encontrasse","if he found"],["encontrar","if he finds"]],[["encontramos","we find"],["encontrámos","we found"],["encontrávamos","we used to find"],["encontremos","that we find"],["encontrássemos","if we found"],["encontrarmos","if we find"]],[["encontrais","you find"],["encontrastes","you found"],["encontráveis","you used to find"],["encontreis","that you find"],["encontrásseis","if you found"],["encontrardes","if you find"]],[["encontram","they find"],["encontraram","they found"],["encontravam","they used to find"],["encontrem","that they find"],["encontrassem","if they found"],["encontrarem","if they find"]]],"receber":[[["recebo","I receive"],["recebi","I received"],["recebia","I used to receive"],["receba","that I receive"],["recebesse","if I received"],["receber","if I receive"]],[["recebes","you receive"],["recebeste","you received"],["recebias","you used to receive"],["recebas","that you receive"],["recebesses","if you received"],["receberes","if you receive"]],[["recebe","he receives"],["recebeu","he received"],["recebia","he used to receive"],["receba","that he receive"],["recebesse","if he received"],["receber","if he receives"]],[["recebemos","we receive"],["recebemos","we received"],["recebíamos","we used to receive"],["recebamos","that we receive"],["recebêssemos","if we received"],["recebermos","if we receive"]],[["recebeis","you receive"],["recebestes","you received"],["recebíeis","you used to receive"],["recebais","that you receive"],["recebêsseis","if you received"],["receberdes","if you receive"]],[["recebem","they receive"],["receberam","they received"],["recebiam","they used to receive"],["recebam","that they receive"],["recebessem","if they received"],["receberem","if they receive"]]],"seguir":[[["sigo","I follow"],["segui","I followed"],["seguia","I used to follow"],["siga","that I follow"],["seguisse","if I followed"],["seguir","if I follow"]],[["segues","you follow"],["seguiste","you followed"],["seguias","you used to follow"],["sigas","that you follow"],["seguisses","if you followed"],["seguires","if you follow"]],[["segue","he follows"],["seguiu","he followed"],["seguia","he used to follow"],["siga","that he follow"],["seguisse","if he followed"],["seguir","if he follows"]],[["seguimos","we follow"],["seguimos","we followed"],["seguíamos","we used to follow"],["sigamos","that we follow"],["seguíssemos","if we followed"],["seguirmos","if we follow"]],[["seguis","you follow"],["seguistes","you followed"],["seguíeis","you used to follow"],["sigais","that you follow"],["seguísseis","if you followed"],["seguirdes","if you follow"]],[["seguem","they follow"],["seguiram","they followed"],["seguiam","they used to follow"],["sigam","that they follow"],["seguissem","if they followed"],["seguirem","if they follow"]]],"abençoar":[[["abençoo","I bless"],["abençoei","I blessed"],["abençoava","I used to bless"],["abençoe","that I bless"],["abençoasse","if I blessed"],["abençoar","if / when I bless"]],[["abençoas","you bless"],["abençoaste","you blessed"],["abençoavas","you used to bless"],["abençoes","that you bless"],["abençoasses","if you blessed"],["abençoares","if / when you bless"]],[["abençoa","he/she blesses · you bless"],["abençoou","he/she blessed · you blessed"],["abençoava","he/she used to bless · you used to bless"],["abençoe","that he/she bless · that you bless"],["abençoasse","if he/she blessed · if you blessed"],["abençoar","if / when he/she blesses · if / when you bless"]],[["abençoamos","we bless"],["abençoámos","we blessed"],["abençoávamos","we used to bless"],["abençoemos","that we bless"],["abençoássemos","if we blessed"],["abençoarmos","if / when we bless"]],[["abençoais","you (plural) bless"],["abençoastes","you (plural) blessed"],["abençoáveis","you (plural) used to bless"],["abençoeis","that you (plural) bless"],["abençoásseis","if you (plural) blessed"],["abençoardes","if / when you (plural) bless"]],[["abençoam","they bless · you all bless"],["abençoaram","they blessed · you all blessed"],["abençoavam","they used to bless · you all used to bless"],["abençoem","that they bless · that you all bless"],["abençoassem","if they blessed · if you all blessed"],["abençoarem","if / when they bless · if / when you all bless"]]],"acreditar":[[["acredito","I believe / trust"],["acreditei","I believed"],["acreditava","I used to believe"],["acredite","that I believe"],["acreditasse","if I believed"],["acreditar","if / when I believe"]],[["acreditas","you believe"],["acreditaste","you believed"],["acreditavas","you used to believe"],["acredites","that you believe"],["acreditasses","if you believed"],["acreditares","if / when you believe"]],[["acredita","he/she believes · you believe"],["acreditou","he/she believed · you believed"],["acreditava","he/she used to believe · you used to believe"],["acredite","that he/she believe · that you believe"],["acreditasse","if he/she believed · if you believed"],["acreditar","if / when he/she believes · if / when you believe"]],[["acreditamos","we believe"],["acreditámos","we believed"],["acreditávamos","we used to believe"],["acreditemos","that we believe"],["acreditássemos","if we believed"],["acreditarmos","if / when we believe"]],[["acreditais","you (plural) believe"],["acreditastes","you (plural) believed"],["acreditáveis","you (plural) used to believe"],["acrediteis","that you (plural) believe"],["acreditásseis","if you (plural) believed"],["acreditardes","if / when you (plural) believe"]],[["acreditam","they believe · you all believe"],["acreditaram","they believed · you all believed"],["acreditavam","they used to believe · you all used to believe"],["acreditem","that they believe · that you all believe"],["acreditassem","if they believed · if you all believed"],["acreditarem","if / when they believe · if / when you all believe"]]],"adorar":[[["adoro","I worship"],["adorei","I worshiped"],["adorava","I used to worship"],["adore","that I worship"],["adorasse","if I worshiped"],["adorar","if / when I worship"]],[["adoras","you worship"],["adoraste","you worshiped"],["adoravas","you used to worship"],["adores","that you worship"],["adorasses","if you worshiped"],["adorares","if / when you worship"]],[["adora","he/she worships · you worship"],["adorou","he/she worshiped · you worshiped"],["adorava","he/she used to worship · you used to worship"],["adore","that he/she worship · that you worship"],["adorasse","if he/she worshiped · if you worshiped"],["adorar","if / when he/she worships · if / when you worship"]],[["adoramos","we worship"],["adorámos","we worshiped"],["adorávamos","we used to worship"],["adoremos","that we worship"],["adorássemos","if we worshiped"],["adorarmos","if / when we worship"]],[["adorais","you (plural) worship"],["adorastes","you (plural) worshiped"],["adoráveis","you (plural) used to worship"],["adoreis","that you (plural) worship"],["adorásseis","if you (plural) worshiped"],["adorardes","if / when you (plural) worship"]],[["adoram","they worship · you all worship"],["adoraram","they worshiped · you all worshiped"],["adoravam","they used to worship · you all used to worship"],["adorem","that they worship · that you all worship"],["adorassem","if they worshiped · if you all worshiped"],["adorarem","if / when they worship · if / when you all worship"]]],"arrepender-se":[[["arrependo-me","I repent"],["arrependi-me","I repented"],["arrependia-me","I used to repent"],["arrependa-me","that I repent"],["arrependesse-me","if I repented"],["arrepender-me","if / when I repent"]],[["arrependes-te","you repent"],["arrependeste-te","you repented"],["arrependias-te","you used to repent"],["arrependas-te","that you repent"],["arrependesses-te","if you repented"],["arrependeres-te","if / when you repent"]],[["arrepende-se","he/she repents · you repent"],["arrependeu-se","he/she repented · you repented"],["arrependia-se","he/she used to repent · you used to repent"],["arrependa-se","that he/she repent · that you repent"],["arrependesse-se","if he/she repented · if you repented"],["arrepender-se","if / when he/she repents · if / when you repent"]],[["arrependemo-nos","we repent"],["arrependemo-nos","we repented"],["arrependíamo-nos","we used to repent"],["arrependamo-nos","that we repent"],["arrependêssemo-nos","if we repented"],["arrependermo-nos","if / when we repent"]],[["arrependeis-vos","you (plural) repent"],["arrependestes-vos","you (plural) repented"],["arrependíeis-vos","you (plural) used to repent"],["arrependais-vos","that you (plural) repent"],["arrependêsseis-vos","if you (plural) repented"],["arrependerdes-vos","if / when you (plural) repent"]],[["arrependem-se","they repent · you all repent"],["arrependeram-se","they repented · you all repented"],["arrependiam-se","they used to repent · you all used to repent"],["arrependam-se","that they repent · that you all repent"],["arrependessem-se","if they repented · if you all repented"],["arrependerem-se","if / when they repent · if / when you all repent"]]],"crer":[[["creio","I believe"],["cri","I believed"],["cria","I used to believe"],["creia","that I believe"],["cresse","if I believed"],["crer","if / when I believe"]],[["crês","you believe"],["creste","you believed"],["crias","you used to believe"],["creias","that you believe"],["cresses","if you believed"],["creres","if / when you believe"]],[["crê","he/she believes · you believe"],["creu","he/she believed · you believed"],["cria","he/she used to believe · you used to believe"],["creia","that he/she believe · that you believe"],["cresse","if he/she believed · if you believed"],["crer","if / when he/she believes · if / when you believe"]],[["cremos","we believe"],["cremos","we believed"],["críamos","we used to believe"],["creiamos","that we believe"],["crêssemos","if we believed"],["crermos","if / when we believe"]],[["credes","you (plural) believe"],["crestes","you (plural) believed"],["críeis","you (plural) used to believe"],["creiais","that you (plural) believe"],["crêsseis","if you (plural) believed"],["crerdes","if / when you (plural) believe"]],[["creem","they believe · you all believe"],["creram","they believed · you all believed"],["criam","they used to believe · you all used to believe"],["creiam","that they believe · that you all believe"],["cressem","if they believed · if you all believed"],["crerem","if / when they believe · if / when you all believe"]]],"obedecer":[[["obedeço","I obey"],["obedeci","I obeyed"],["obedecia","I used to obey"],["obedeça","that I obey"],["obedecesse","if I obeyed"],["obedecer","if / when I obey"]],[["obedeces","you obey"],["obedeceste","you obeyed"],["obedecias","you used to obey"],["obedeças","that you obey"],["obedecesses","if you obeyed"],["obedeceres","if / when you obey"]],[["obedece","he/she obeys · you obey"],["obedeceu","he/she obeyed · you obeyed"],["obedecia","he/she used to obey · you used to obey"],["obedeça","that he/she obey · that you obey"],["obedecesse","if he/she obeyed · if you obeyed"],["obedecer","if / when he/she obeys · if / when you obey"]],[["obedecemos","we obey"],["obedecemos","we obeyed"],["obedecíamos","we used to obey"],["obedeçamos","that we obey"],["obedecêssemos","if we obeyed"],["obedecermos","if / when we obey"]],[["obedeceis","you (plural) obey"],["obedecestes","you (plural) obeyed"],["obedecíeis","you (plural) used to obey"],["obedeçais","that you (plural) obey"],["obedecêsseis","if you (plural) obeyed"],["obedecerdes","if / when you (plural) obey"]],[["obedecem","they obey · you all obey"],["obedeceram","they obeyed · you all obeyed"],["obedeciam","they used to obey · you all used to obey"],["obedeçam","that they obey · that you all obey"],["obedecessem","if they obeyed · if you all obeyed"],["obedecerem","if / when they obey · if / when you all obey"]]],"orar":[[["oro","I pray"],["orei","I prayed"],["orava","I prayed / used to pray"],["ore","that I pray"],["orasse","if I prayed"],["orar","if / when I pray"]],[["oras","you pray"],["oraste","you prayed"],["oravas","you used to pray"],["ores","that you pray"],["orasses","if you prayed"],["orares","if you pray"]],[["ora","he/she prays · you pray"],["orou","he/she prayed · you prayed"],["orava","he/she prayed / used to pray"],["ore","that he/she pray"],["orasse","if he/she prayed"],["orar","if / when he/she prays"]],[["oramos","we pray"],["orámos","we prayed"],["orávamos","we used to pray"],["oremos","that we pray"],["orássemos","if we prayed"],["orarmos","if / when we pray"]],[["orais","you pray"],["orastes","you prayed"],["oráveis","you used to pray"],["oreis","that you pray"],["orásseis","if you prayed"],["orardes","if / when you pray"]],[["oram","they pray · you all pray"],["oraram","they prayed · you all prayed"],["oravam","they prayed / used to pray"],["orem","that they pray"],["orassem","if they prayed"],["orarem","if / when they pray"]]],"pecar":[[["peco","I sin"],["pequei","I sinned"],["pecava","I used to sin"],["peque","that I sin"],["pecasse","if I sinned"],["pecar","if / when I sin"]],[["pecas","you sin"],["pecaste","you sinned"],["pecavas","you used to sin"],["peques","that you sin"],["pecasses","if you sinned"],["pecares","if / when you sin"]],[["peca","he/she sins · you sin"],["pecou","he/she sinned · you sinned"],["pecava","he/she used to sin · you used to sin"],["peque","that he/she sin · that you sin"],["pecasse","if he/she sinned · if you sinned"],["pecar","if / when he/she sins · if / when you sin"]],[["pecamos","we sin"],["pecámos","we sinned"],["pecávamos","we used to sin"],["pequemos","that we sin"],["pecássemos","if we sinned"],["pecarmos","if / when we sin"]],[["pecais","you (plural) sin"],["pecastes","you (plural) sinned"],["pecáveis","you (plural) used to sin"],["pequeis","that you (plural) sin"],["pecásseis","if you (plural) sinned"],["pecardes","if / when you (plural) sin"]],[["pecam","they sin · you all sin"],["pecaram","they sinned · you all sinned"],["pecavam","they used to sin · you all used to sin"],["pequem","that they sin · that you all sin"],["pecassem","if they sinned · if you all sinned"],["pecarem","if / when they sin · if / when you all sin"]]],"perdoar":[[["perdoo","I forgive"],["perdoei","I forgave"],["perdoava","I used to forgive"],["perdoe","that I forgive"],["perdoasse","if I forgave"],["perdoar","if / when I forgive"]],[["perdoas","you forgive"],["perdoaste","you forgave"],["perdoavas","you used to forgive"],["perdoes","that you forgive"],["perdoasses","if you forgave"],["perdoares","if / when you forgive"]],[["perdoa","he/she forgives · you forgive"],["perdoou","he/she forgave · you forgave"],["perdoava","he/she used to forgive · you used to forgive"],["perdoe","that he/she forgive · that you forgive"],["perdoasse","if he/she forgave · if you forgave"],["perdoar","if / when he/she forgives · if / when you forgive"]],[["perdoamos","we forgive"],["perdoámos","we forgave"],["perdoávamos","we used to forgive"],["perdoemos","that we forgive"],["perdoássemos","if we forgave"],["perdoarmos","if / when we forgive"]],[["perdoais","you (plural) forgive"],["perdoastes","you (plural) forgave"],["perdoáveis","you (plural) used to forgive"],["perdoeis","that you (plural) forgive"],["perdoásseis","if you (plural) forgave"],["perdoardes","if / when you (plural) forgive"]],[["perdoam","they forgive · you all forgive"],["perdoaram","they forgave · you all forgave"],["perdoavam","they used to forgive · you all used to forgive"],["perdoem","that they forgive · that you all forgive"],["perdoassem","if they forgave · if you all forgave"],["perdoarem","if / when they forgive · if / when you all forgive"]]],"ressuscitar":[[["ressuscito","I rise / resurrect"],["ressuscitei","I rose / resurrected"],["ressuscitava","I used to rise"],["ressuscite","that I rise"],["ressuscitasse","if I rose"],["ressuscitar","if / when I rise"]],[["ressuscitas","you rise"],["ressuscitaste","you rose"],["ressuscitavas","you used to rise"],["ressuscites","that you rise"],["ressuscitasses","if you rose"],["ressuscitares","if / when you rise"]],[["ressuscita","he/she rises · you rise"],["ressuscitou","he/she rose · you rose"],["ressuscitava","he/she used to rise · you used to rise"],["ressuscite","that he/she rise · that you rise"],["ressuscitasse","if he/she rose · if you rose"],["ressuscitar","if / when he/she rises · if / when you rise"]],[["ressuscitamos","we rise"],["ressuscitámos","we rose"],["ressuscitávamos","we used to rise"],["ressuscitemos","that we rise"],["ressuscitássemos","if we rose"],["ressuscitarmos","if / when we rise"]],[["ressuscitais","you (plural) rise"],["ressuscitastes","you (plural) rose"],["ressuscitáveis","you (plural) used to rise"],["ressusciteis","that you (plural) rise"],["ressuscitásseis","if you (plural) rose"],["ressuscitardes","if / when you (plural) rise"]],[["ressuscitam","they rise · you all rise"],["ressuscitaram","they rose · you all rose"],["ressuscitavam","they used to rise · you all used to rise"],["ressuscitem","that they rise · that you all rise"],["ressuscitassem","if they rose · if you all rose"],["ressuscitarem","if / when they rise · if / when you all rise"]]],"restaurar":[[["restauro","I restore"],["restaurei","I restored"],["restaurava","I used to restore"],["restaure","that I restore"],["restaurasse","if I restored"],["restaurar","if / when I restore"]],[["restauras","you restore"],["restauraste","you restored"],["restauravas","you used to restore"],["restaures","that you restore"],["restaurasses","if you restored"],["restaurares","if / when you restore"]],[["restaura","he/she restores · you restore"],["restaurou","he/she restored · you restored"],["restaurava","he/she used to restore · you used to restore"],["restaure","that he/she restore · that you restore"],["restaurasse","if he/she restored · if you restored"],["restaurar","if / when he/she restores · if / when you restore"]],[["restauramos","we restore"],["restaurámos","we restored"],["restaurávamos","we used to restore"],["restauremos","that we restore"],["restaurássemos","if we restored"],["restaurarmos","if / when we restore"]],[["restaurais","you (plural) restore"],["restaurastes","you (plural) restored"],["restauráveis","you (plural) used to restore"],["restaureis","that you (plural) restore"],["restaurásseis","if you (plural) restored"],["restaurardes","if / when you (plural) restore"]],[["restauram","they restore · you all restore"],["restauraram","they restored · you all restored"],["restauravam","they used to restore · you all used to restore"],["restaurem","that they restore · that you all restore"],["restaurassem","if they restored · if you all restored"],["restaurarem","if / when they restore · if / when you all restore"]]],"salvar":[[["salvo","I save"],["salvei","I saved"],["salvava","I used to save"],["salve","that I save"],["salvasse","if I saved"],["salvar","if / when I save"]],[["salvas","you save"],["salvaste","you saved"],["salvavas","you used to save"],["salves","that you save"],["salvasses","if you saved"],["salvares","if / when you save"]],[["salva","he/she saves · you save"],["salvou","he/she saved · you saved"],["salvava","he/she used to save · you used to save"],["salve","that he/she save · that you save"],["salvasse","if he/she saved · if you saved"],["salvar","if / when he/she saves · if / when you save"]],[["salvamos","we save"],["salvámos","we saved"],["salvávamos","we used to save"],["salvemos","that we save"],["salvássemos","if we saved"],["salvarmos","if / when we save"]],[["salvais","you (plural) save"],["salvastes","you (plural) saved"],["salváveis","you (plural) used to save"],["salveis","that you (plural) save"],["salvásseis","if you (plural) saved"],["salvardes","if / when you (plural) save"]],[["salvam","they save · you all save"],["salvaram","they saved · you all saved"],["salvavam","they used to save · you all used to save"],["salvem","that they save · that you all save"],["salvassem","if they saved · if you all saved"],["salvarem","if / when they save · if / when you all save"]]],"servir":[[["sirvo","I serve"],["servi","I served"],["servia","I used to serve"],["sirva","that I serve"],["servisse","if I served"],["servir","if / when I serve"]],[["serves","you serve"],["serviste","you served"],["servias","you used to serve"],["sirvas","that you serve"],["servisses","if you served"],["servires","if / when you serve"]],[["serve","he/she serves · you serve"],["serviu","he/she served · you served"],["servia","he/she used to serve · you used to serve"],["sirva","that he/she serve · that you serve"],["servisse","if he/she served · if you served"],["servir","if / when he/she serves · if / when you serve"]],[["servimos","we serve"],["servimos","we served"],["servíamos","we used to serve"],["sirvamos","that we serve"],["servíssemos","if we served"],["servirmos","if / when we serve"]],[["servis","you (plural) serve"],["servistes","you (plural) served"],["servíeis","you (plural) used to serve"],["sirvais","that you (plural) serve"],["servísseis","if you (plural) served"],["servirdes","if / when you (plural) serve"]],[["servem","they serve · you all serve"],["serviram","they served · you all served"],["serviam","they used to serve · you all used to serve"],["sirvam","that they serve · that you all serve"],["servissem","if they served · if you all served"],["servirem","if / when they serve · if / when you all serve"]]],"testificar":[[["testifico","I testify"],["testifiquei","I testified"],["testificava","I used to testify"],["testifique","that I testify"],["testificasse","if I testified"],["testificar","if / when I testify"]],[["testificas","you testify"],["testificaste","you testified"],["testificavas","you used to testify"],["testifiques","that you testify"],["testificasses","if you testified"],["testificares","if / when you testify"]],[["testifica","he/she testifies · you testify"],["testificou","he/she testified · you testified"],["testificava","he/she used to testify · you used to testify"],["testifique","that he/she testify · that you testify"],["testificasse","if he/she testified · if you testified"],["testificar","if / when he/she testifies · if / when you testify"]],[["testificamos","we testify"],["testificámos","we testified"],["testificávamos","we used to testify"],["testifiquemos","that we testify"],["testificássemos","if we testified"],["testificarmos","if / when we testify"]],[["testificais","you (plural) testify"],["testificastes","you (plural) testified"],["testificáveis","you (plural) used to testify"],["testifiqueis","that you (plural) testify"],["testificásseis","if you (plural) testified"],["testificardes","if / when you (plural) testify"]],[["testificam","they testify · you all testify"],["testificaram","they testified · you all testified"],["testificavam","they used to testify · you all used to testify"],["testifiquem","that they testify · that you all testify"],["testificassem","if they testified · if you all testified"],["testificarem","if / when they testify · if / when you all testify"]]]}};
+
+const TENSES=[
+ {pt:'Presente',en:'Present',cue:'',like:'I do · I am · I go',
+  when:'Now, habits, and things that are always true.',
+  uses:['Something true now: I live in Maputo.','Something you do regularly: I pray every morning.','Plans for soon: Tomorrow I go to Beira.'],
+  clues:['hoje','agora','sempre','todos os dias','normalmente'],
+  ex:[['Eu falo um pouco de português.','I speak a little Portuguese.'],['Vamos à igreja todos os domingos.','We go to church every Sunday.'],['Amanhã vou à Beira.','Tomorrow I’m going to Beira.']],
+  tip:'For “I am doing it right now”, use estar a + the verb: Estou a ler (I’m reading).'},
+ {pt:'Pretérito perfeito',en:'Past, completed',cue:'',like:'I did · I went · I was (once)',
+  when:'A finished action at a moment in the past.',
+  uses:['Something that happened and is over: Yesterday I went to the market.','Something that happened once: She arrived at eight.','English “I have done it”: Já comi (I have eaten).'],
+  clues:['ontem','já','na semana passada','há dois dias','de repente'],
+  ex:[['Ontem fui ao mercado.','Yesterday I went to the market.'],['Já comeste?','Have you eaten yet?'],['Ela chegou às oito.','She arrived at eight.']],
+  tip:'Think of it as a dot on a timeline: one finished event.'},
+ {pt:'Pretérito imperfeito',en:'Past, ongoing',cue:'',like:'I used to · I was ___ing',
+  when:'Background, habits, and descriptions in the past.',
+  uses:['What you used to do: When I was a child, I went to church every week.','What was going on when something else happened: It was raining when we left.','Describing the past (weather, age, feelings): I was tired.','A polite request: Queria um refresco (I’d like a soft drink).'],
+  clues:['antigamente','quando era criança','enquanto','sempre (in the past)','todos os anos'],
+  ex:[['Quando era criança, ia à igreja com a minha avó.','When I was a child, I used to go to church with my grandmother.'],['Estava a chover quando saímos.','It was raining when we left.'],['Queria um refresco, por favor.','I’d like a soft drink, please.']],
+  tip:'Think of it as a line on a timeline: the scene, not the event. In “Estava a chover quando saímos”, the rain is the line (imperfeito) and leaving is the dot (perfeito).'},
+ {pt:'Presente do conjuntivo',en:'Present subjunctive',cue:'que',like:'that I do · may I do',
+  when:'After “que” when you want, hope, ask, or aren’t sure.',
+  uses:['Wanting someone else to do something: I want you to come.','Hoping or wishing: I hope everything is OK. May God bless you.','Asking or advising: I ask that you pray.','Doubt: Maybe he knows.'],
+  clues:['quero que','espero que','peço que','é importante que','talvez','para que','antes que'],
+  ex:[['Quero que venhas comigo.','I want you to come with me.'],['Que Deus te abençoe.','May God bless you.'],['Espero que esteja tudo bem.','I hope everything is OK.'],['Talvez ele saiba.','Maybe he knows.']],
+  tip:'English usually hides this tense. “I want you to come” becomes “I want that you come”: Quero que venhas. Look for a trigger word, usually que.'},
+ {pt:'Imperfeito do conjuntivo',en:'Past subjunctive',cue:'se',like:'if I did · if I were',
+  when:'“If” things that aren’t true, and past wants or requests.',
+  uses:['Imagining: If I had time, I would stay longer.','“As if”: He talks as if he were from Maputo.','The past version of the one above: He asked that we pray.'],
+  clues:['se (imagining)','como se','queria que','pediu que','era importante que'],
+  ex:[['Se eu tivesse tempo, ficava mais.','If I had time, I’d stay longer.'],['Ele pediu que orássemos juntos.','He asked us to pray together.'],['Fala como se fosse de Maputo.','He talks as if he were from Maputo.']],
+  tip:'English has this too: “If I were you…”. In Portuguese, se eu fosse tu…'},
+ {pt:'Futuro do conjuntivo',en:'Future subjunctive',cue:'quando',like:'when I do · if I do (later)',
+  when:'After quando, se, or quem, about the future.',
+  uses:['When something happens later: When you arrive, call me.','If something happens later: If you can, come tomorrow.','Whoever does something: Whoever believes will be saved.'],
+  clues:['quando','se','logo que','assim que','enquanto','quem','sempre que'],
+  ex:[['Quando chegares, liga-me.','When you arrive, call me.'],['Se puderes, vem amanhã.','If you can, come tomorrow.'],['Quem crer será salvo.','Whoever believes will be saved.']],
+  tip:'English uses the present here (“when you arrive”). Portuguese needs this form. People use it all the time in everyday speech.'}];
+const PERSONS=['eu','tu','ele / ela / você','nós','vós','eles / elas / vocês'];
+const PSPEAK=['eu','tu','ele','nós','vós','eles'];
+
+// English meaning, type tag, group, and two Mozambican example sentences per verb
+const INFO={
+ estar:['to be (state, place)','irregular','core',[['Estou na paragem à espera do chapa.','I’m at the stop waiting for the minibus.'],['Como estás? Estou bem, obrigado.','How are you? I’m well, thanks.']]],
+ ser:['to be (identity, origin)','irregular','core',[['Ela é professora numa escola primária em Nampula.','She is a teacher at a primary school in Nampula.'],['Jesus Cristo é o nosso Salvador.','Jesus Christ is our Saviour.']]],
+ ter:['to have','irregular','core',[['Tens tempo para conversar depois do mata-bicho?','Do you have time to talk after breakfast?'],['Temos uma mensagem sobre a família.','We have a message about the family.']]],
+ ir:['to go','irregular','core',[['Amanhã vamos à cidade de machimbombo.','Tomorrow we’re going into town by bus.'],['Fui ao mercado do Xipamanine ontem.','I went to Xipamanine market yesterday.']]],
+ querer:['to want','irregular','core',[['Queres matapa ou caril de amendoim?','Do you want matapa or peanut curry?'],['Ele quer saber mais sobre Jesus Cristo.','He wants to know more about Jesus Christ.']]],
+ dar:['to give','irregular','core',[['A avó deu-me uma capulana nova.','Grandma gave me a new capulana.'],['Deus dá-nos forças todos os dias.','God gives us strength every day.']]],
+ dizer:['to say, to tell','irregular','core',[['O que é que ele disse?','What did he say?'],['Diga-me, como posso ajudar?','Tell me, how can I help?']]],
+ fazer:['to do, to make','irregular','core',[['O que fazes no fim de semana?','What do you do at the weekend?'],['Está a fazer muito calor hoje.','It’s very hot today.']]],
+ saber:['to know (a fact, how to)','irregular','core',[['Sabes onde fica a paragem do chapa?','Do you know where the minibus stop is?'],['Sei que Deus me ama.','I know that God loves me.']]],
+ sair:['to leave, to go out','irregular','core',[['O chapa sai às seis da manhã.','The minibus leaves at six in the morning.'],['Saímos cedo para evitar o calor.','We left early to avoid the heat.']]],
+ trazer:['to bring','irregular','core',[['Traz água, está muito calor.','Bring water, it’s very hot.'],['Trouxemos pão para a família.','We brought bread for the family.']]],
+ ler:['to read','irregular','core',[['Leio as escrituras todas as manhãs.','I read the scriptures every morning.'],['Podes ler este versículo em voz alta?','Can you read this verse out loud?']]],
+ ouvir:['to hear, to listen','irregular','core',[['Ouviste a chuva ontem à noite?','Did you hear the rain last night?'],['Obrigado por ouvir a nossa mensagem.','Thank you for listening to our message.']]],
+ pedir:['to ask for, to request','irregular','core',[['Vou pedir um refresco, por favor.','I’m going to ask for a soft drink, please.'],['Peço a Deus que vos abençoe.','I ask God to bless you all.']]],
+ ver:['to see','irregular','core',[['Vemo-nos amanhã na capela.','See you tomorrow at the chapel.'],['Viste o pôr do sol na Costa do Sol?','Did you see the sunset at Costa do Sol?']]],
+ vir:['to come','irregular','core',[['Vens connosco à reunião no domingo?','Are you coming with us to the meeting on Sunday?'],['Eles vieram da Beira de machimbombo.','They came from Beira by bus.']]],
+ poder:['to be able to, can','irregular','core',[['Posso entrar?','May I come in?'],['Pode repetir mais devagar, por favor?','Can you repeat that more slowly, please?']]],
+ 'pôr':['to put, to place','irregular','core',[['Põe a panela no fogo.','Put the pot on the fire.'],['Pus as escrituras na mochila.','I put the scriptures in my backpack.']]],
+ haver:['there is / there are','irregular','core',[['Há muita gente no mercado hoje.','There are a lot of people at the market today.'],['Houve uma reunião de jovens ontem.','There was a youth meeting yesterday.']]],
+ dever:['should, must, to owe','regular','core',[['Devemos chegar antes das nove.','We should arrive before nine.'],['Deves beber muita água com este calor.','You should drink lots of water in this heat.']]],
+ ficar:['to stay, to become, to be located','spelling','core',[['Fico em Maputo até dezembro.','I’m staying in Maputo until December.'],['Ficámos muito contentes com a visita.','We were very happy about the visit.']]],
+ deixar:['to leave (something), to let','regular','core',[['Deixa-me ajudar com isso.','Let me help with that.'],['Deixei o guarda-chuva no chapa.','I left my umbrella on the minibus.']]],
+ levar:['to take, to carry','regular','core',[['Levamos o almoço para a machamba.','We take lunch to the farm plot.'],['Quanto tempo leva daqui até à Matola?','How long does it take from here to Matola?']]],
+ achar:['to think, to find','regular','core',[['Acho que vai chover.','I think it’s going to rain.'],['Achas que ele vem?','Do you think he’s coming?']]],
+ sentir:['to feel','stem change','core',[['Sinto a paz de Deus quando oro.','I feel God’s peace when I pray.'],['Como te sentes hoje?','How do you feel today?']]],
+ precisar:['to need','regular','core',[['Preciso de comprar crédito para o telefone.','I need to buy airtime for my phone.'],['Precisamos de ajuda para levar as cadeiras.','We need help carrying the chairs.']]],
+ chegar:['to arrive','spelling','core',[['Chegámos tarde porque o chapa avariou.','We arrived late because the minibus broke down.'],['Quando chegares, liga-me.','When you arrive, call me.']]],
+ encontrar:['to find, to meet','regular','core',[['Encontrei a irmã Celeste no mercado.','I met Sister Celeste at the market.'],['Não encontro as minhas chaves.','I can’t find my keys.']]],
+ receber:['to receive, to welcome','regular','core',[['A família recebeu-nos com muita alegria.','The family welcomed us with great joy.'],['Recebeste a minha mensagem?','Did you get my message?']]],
+ seguir:['to follow','stem change','core',[['Segue em frente até à rotunda.','Go straight ahead to the roundabout.'],['Quero seguir Jesus Cristo.','I want to follow Jesus Christ.']]],
+ 'abençoar':['to bless','regular','gospel',[['Que Deus te abençoe.','May God bless you.'],['O pai abençoou a comida antes do jantar.','Father blessed the food before dinner.']]],
+ acreditar:['to believe, to trust','regular','gospel',[['Acredito em ti.','I believe in you.'],['Acreditamos que as famílias são importantes para Deus.','We believe families are important to God.']]],
+ adorar:['to worship; to love (a thing)','regular','gospel',[['Adoramos a Deus aos domingos.','We worship God on Sundays.'],['Adoro matapa com caranguejo!','I love matapa with crab!']]],
+ 'arrepender-se':['to repent, to regret','reflexive','gospel',[['Arrependo-me do que disse.','I regret what I said.'],['Se nos arrependermos, Deus perdoa-nos.','If we repent, God forgives us.']]],
+ crer:['to believe','irregular','gospel',[['Creio em Jesus Cristo.','I believe in Jesus Christ.'],['Quem crer será salvo.','Whoever believes will be saved.']]],
+ obedecer:['to obey','spelling','gospel',[['As crianças obedecem aos pais.','Children obey their parents.'],['Quando obedecemos aos mandamentos, sentimos paz.','When we keep the commandments, we feel peace.']]],
+ orar:['to pray','regular','gospel',[['Vamos orar antes de comer.','Let’s pray before we eat.'],['Ela orava todas as noites com os filhos.','She used to pray every night with her children.']]],
+ pecar:['to sin','spelling','gospel',[['Todos pecamos, mas podemos mudar.','We all sin, but we can change.'],['Ele pecou e depois arrependeu-se.','He sinned and then repented.']]],
+ perdoar:['to forgive','regular','gospel',[['Perdoa-me, cheguei atrasado.','Forgive me, I arrived late.'],['Deus perdoa quem se arrepende.','God forgives whoever repents.']]],
+ ressuscitar:['to rise again, to resurrect','regular','gospel',[['Cristo ressuscitou ao terceiro dia.','Christ rose on the third day.'],['Cremos que todos vão ressuscitar.','We believe that everyone will rise again.']]],
+ restaurar:['to restore','regular','gospel',[['Restauraram a velha capela do bairro.','They restored the old chapel in the neighbourhood.'],['Deus pode restaurar a nossa esperança.','God can restore our hope.']]],
+ salvar:['to save','regular','gospel',[['Jesus Cristo salva-nos.','Jesus Christ saves us.'],['O vizinho salvou a criança do rio.','The neighbour saved the child from the river.']]],
+ servir:['to serve','stem change','gospel',[['Servimos a comunidade aos sábados.','We serve the community on Saturdays.'],['Posso servir-te mais xima?','Can I serve you more xima?']]],
+ testificar:['to testify','spelling','gospel',[['Testifico que Deus vive.','I testify that God lives.'],['Ela testificou do amor de Cristo.','She testified of Christ’s love.']]]
+};
+
+// Build verb objects; in the subjunctive a reflexive pronoun goes before the verb ("que eu me arrependa")
+function proclitic(form){const m=form.match(/^(.*)-(me|te|se|nos|vos)$/);if(!m)return form;let s=m[1];if(m[2]==='nos'&&/mo$/.test(s))s+='s';return m[2]+' '+s}
+const VERBS=RAW.order.filter((v,i,a)=>a.indexOf(v)===i).map(inf=>{
+  const rows=RAW.v[inf];const info=INFO[inf]||['','regular','core',[]];
+  const forms=rows.map(r=>r.map((c,t)=>{let f=c[0];if(t>=3&&inf.endsWith('-se'))f=proclitic(f);return {f,en:c[1]}}));
+  return {inf,mean:info[0],type:info[1],group:info[2],ex:info[3],forms};
+});
+const VMAP=Object.fromEntries(VERBS.map(v=>[v.inf,v]));
+
+// ---------- state ----------
+let currentTab='practice',detailVerb=null,vFilter='all',vSearch='';
+const DEFAULT_SETTINGS={meaning:true,conj:true,tenses:[0],vos:false,newPerDay:15,group:'all',auto:true,rate:0.85,voice:''};
+let S={cards:{},day:{d:'',n:0},settings:{...DEFAULT_SETTINGS},t:0};
+const LS='verbos-mz-v1';
+try{const j=JSON.parse(localStorage.getItem(LS)||'null');if(j&&j.cards){S=j;S.settings={...DEFAULT_SETTINGS,...j.settings}}}catch(e){}
+let remote=null,pushing=false,pushAgain=false,pushTimer=null;
+function save(){S.t=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+  if(remote){clearTimeout(pushTimer);pushTimer=setTimeout(push,1200)}}
+async function push(){if(!remote)return;if(pushing){pushAgain=true;return}pushing=true;
+  try{await remote.set(JSON.parse(JSON.stringify(S)));setSync('Synced to your Claude account')}
+  catch(e){if(e&&e.code==='unavailable'){setTimeout(push,1500+Math.random()*1500)}else{remote=null;setSync('Saved on this phone')}}
+  pushing=false;if(pushAgain){pushAgain=false;push()}}
+function setSync(t){document.getElementById('sync').textContent=t}
+// Progress is kept in this browser (localStorage).
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+
+// ---------- cards & scheduling ----------
+const MIN=60e3,DAY=864e5;
+const INTERVALS=[0,1,3,7,16,35,80,180]; // days, by box
+function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function personsOn(){return S.settings.vos?[0,1,2,3,4,5]:[0,1,2,3,5]}
+function verbsOn(){const g=S.settings.group;return VERBS.filter(v=>g==='all'||v.group===g)}
+function eligibleKeys(){const out=[];const st=S.settings;const tenses=[...st.tenses].sort();
+  for(const v of verbsOn()){
+    if(st.meaning)out.push('m|'+v.inf);
+    if(st.conj)for(const t of tenses)for(const p of personsOn())out.push('c|'+v.inf+'|'+t+'|'+p);
+  }return out}
+function newLeft(){if(S.day.d!==today()){S.day={d:today(),n:0}}return Math.max(0,S.settings.newPerDay-S.day.n)}
+function counts(){const now=Date.now();let due=0,fresh=0,known=0;const keys=eligibleKeys();
+  for(const k of keys){const c=S.cards[k];if(!c)fresh++;else{if(c.due<=now)due++;if(c.box>=3)known++}}
+  return {due,fresh,known,total:keys.length,newToday:Math.min(fresh,newLeft())}}
+function nextInterval(c,r){const box=c?c.box:0;
+  if(r===0)return {box:0,ms:MIN};
+  if(r===1)return {box:Math.max(1,box),ms:box===0?10*MIN:Math.max(DAY,INTERVALS[box]*DAY*0.5)};
+  if(r===2){const b=Math.min(box+1,7);return {box:b,ms:INTERVALS[b]*DAY}}
+  const b=Math.min(box+2,7);return {box:b,ms:INTERVALS[b]*DAY}}
+function fmt(ms){if(ms<60*MIN){const m=Math.round(ms/MIN);return 'in '+m+(m===1?' minute':' minutes')}if(ms<DAY){const hh=Math.round(ms/36e5);return 'in '+hh+(hh===1?' hour':' hours')}const d=Math.round(ms/DAY);if(d===1)return 'tomorrow';if(d<14)return 'in '+d+' days';if(d<60)return 'in '+Math.round(d/7)+' weeks';return 'in '+Math.round(d/30)+' months'}
+
+let session=null; // {queue:[keys], done, total, shown, revealed}
+function startSession(){const now=Date.now();const keys=eligibleKeys();
+  const due=keys.filter(k=>S.cards[k]&&S.cards[k].due<=now).sort((a,b)=>S.cards[a].due-S.cards[b].due);
+  const fresh=keys.filter(k=>!S.cards[k]).slice(0,newLeft());
+  const q=[];let i=0,j=0;while(i<due.length||j<fresh.length){if(i<due.length)q.push(due[i++]);if(i<due.length)q.push(due[i++]);if(j<fresh.length)q.push(fresh[j++])}
+  session={queue:q.slice(0,30),done:0,total:Math.min(q.length,30),revealed:false,exIdx:0};render()}
+function rateCard(r){const k=session.queue.shift();const c=S.cards[k];if(!c){S.day.n++}
+  const ni=nextInterval(c,r);S.cards[k]={box:ni.box,due:Date.now()+ni.ms,n:(c?c.n:0)+1};
+  if(r===0){session.queue.splice(Math.min(3,session.queue.length),0,k)}else session.done++;
+  session.revealed=false;session.exIdx++;save();render()}
+
+// ---------- speech ----------
+const synth=window.speechSynthesis;let voices=[];
+function loadVoices(){if(!synth)return;voices=synth.getVoices().filter(v=>/^pt/i.test(v.lang));
+  voices.sort((a,b)=>score(b)-score(a));if(currentTab==='settings')render()}
+function score(v){const l=v.lang.replace('_','-').toLowerCase();return (l==='pt-pt'?10:l.startsWith('pt-')&&l!=='pt-br'?6:l==='pt-br'?2:1)+(/enhanced|premium|natural/i.test(v.name)?1:0)}
+if(synth){loadVoices();synth.onvoiceschanged=loadVoices}
+function pickVoice(){return voices.find(v=>v.name===S.settings.voice)||voices[0]||null}
+function say(text){if(!synth)return;synth.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();
+  if(v){u.voice=v;u.lang=v.lang}else u.lang='pt-PT';u.rate=S.settings.rate;synth.speak(u)}
+
+// ---------- rendering helpers ----------
+function h(tag,attrs,...kids){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs||{})){
+  if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?'':v)}
+  for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)))}return e}
+const ICON_SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+function spk(text,small){const b=h('button',{class:'speak'+(small?' sm':''),'aria-label':'Hear: '+text,onclick:e=>{e.stopPropagation();say(text)}});b.innerHTML=ICON_SPK;if(!synth)b.hidden=true;return b}
+function phrase(v,t,p){const f=v.forms[p][t].f;const cue=TENSES[t].cue;return (cue?cue+' ':'')+PSPEAK[p]+' '+f}
+
+const view=document.getElementById('view');
+
+function renderPractice(){
+  if(session&&session.queue.length){return renderCard()}
+  if(session&&!session.queue.length){const c=counts();const box=h('div',{class:'card done'},
+      h('b',{},'Muito bem!'),h('p',{},'You finished '+session.total+' cards.'),
+      h('p',{class:'note'},c.due?c.due+' more are due now.':'Nothing else is due right now. Come back tomorrow.'),
+      h('button',{class:'btn primary block',onclick:()=>{session=null;render()}},'Done'));
+    return [box]}
+  const c=counts();
+  const tl=S.settings.tenses.map(t=>TENSES[t].pt).join(', ');
+  return [
+    h('p',{class:'lede'},'Look at the prompt and say the answer out loud. Tap Show answer to check yourself, then tap how well you knew it. Ten minutes a day is enough.'),
+    h('div',{class:'stats'},
+      h('div',{class:'stat'},h('b',{},c.due),h('small',{},'due for review')),
+      h('div',{class:'stat'},h('b',{},c.newToday),h('small',{},'new today')),
+      h('div',{class:'stat'},h('b',{},c.known),h('small',{},'of '+c.total+' learned'))),
+    h('button',{class:'btn yellow block',disabled:!(c.due+c.newToday),onclick:startSession},c.due+c.newToday?'Start practice':'All caught up for today'),
+    h('p',{class:'note',style:'margin-top:12px'},'Practising: '+[S.settings.meaning?'meanings':null,S.settings.conj?'conjugations ('+tl+')':null].filter(Boolean).join(' + ')+'. ',
+      h('button',{class:'linkbtn',onclick:()=>go('settings')},'Change'))
+  ];
+}
+function renderCard(){
+  const k=session.queue[0];const parts=k.split('|');const v=VMAP[parts[1]];const card=S.cards[k];
+  const pct=session.total?Math.round(100*session.done/session.total):0;
+  const top=h('div',{class:'row-between'},h('span',{class:'note'},session.done+' / '+session.total),h('button',{class:'linkbtn',onclick:()=>{session=null;render()}},'End'));
+  const bar=h('div',{class:'progress'},h('i',{style:'width:'+pct+'%'}));
+  let chips,prompt,hint,answerText,spoken;
+  if(parts[0]==='m'){
+    chips=h('div',{class:'chips'},h('span',{class:'chip t'},'Meaning'),card?null:h('span',{class:'chip'},'New'));
+    prompt=h('p',{class:'prompt'},v.mean);hint=h('p',{class:'hint'},'Say the Portuguese verb.');
+    answerText=v.inf;spoken=v.inf;
+  }else{
+    const t=+parts[2],p=+parts[3];const T=TENSES[t];
+    chips=h('div',{class:'chips'},h('span',{class:'chip t'},T.pt),h('span',{class:'chip'},T.en),card?null:h('span',{class:'chip'},'New'));
+    prompt=h('p',{class:'prompt'},T.cue?h('span',{class:'cue'},T.cue+' '):null,PERSONS[p]+' … ',h('span',{style:'color:var(--brand)'},v.inf));
+    hint=h('div',{},h('p',{class:'hint',style:'margin:0'},'In English: “'+v.forms[p][t].en+'”'),
+      h('details',{class:'why'},h('summary',{},'When do I use '+T.pt+'?'),tenseBody(t)));
+    answerText=v.forms[p][t].f;spoken=phrase(v,t,p);
+  }
+  const el=h('div',{class:'card'},chips,prompt,hint);
+  if(!session.revealed){
+    el.append(h('button',{class:'btn primary block',style:'margin-top:auto',onclick:()=>{session.revealed=true;render();if(S.settings.auto)say(spoken)}},'Show answer'));
+  }else{
+    const ex=v.ex[session.exIdx%v.ex.length];
+    const ans=h('div',{class:'answer'},
+      h('div',{class:'ans-row'},h('span',{class:'ans'},answerText),spk(spoken)),
+      parts[0]==='c'?h('div',{class:'note'},'Say it: '+spoken):h('div',{class:'note'},v.type!=='regular'?'Type: '+v.type:''),
+      ex?h('div',{class:'example'},h('div',{},h('p',{},ex[0]),h('p',{class:'en'},ex[1])),spk(ex[0],true)):null);
+    el.append(ans);
+    const labels=['I didn’t know it','I got it, but it was hard','I got it','Easy, I knew it right away'],cls=['again','hard','good','easy'];
+    el.append(h('p',{class:'rate-q'},'Did you get it right?'),h('p',{class:'note'},'Tap one. It decides when you’ll see this card again: soon if it was hard, later if it was easy.'));
+    el.append(h('div',{class:'rate'},labels.map((l,i)=>h('button',{class:cls[i],onclick:()=>rateCard(i)},h('span',{},l),h('small',{},'See it '+fmt(nextInterval(card,i).ms))))));
+  }
+  return [top,bar,el];
+}
+function meter(v){let tot=0,known=0;for(const k of Object.keys(S.cards)){if(k.split('|')[1]===v.inf){tot++;if(S.cards[k].box>=3)known++}}
+  const lvl=tot?Math.min(5,Math.ceil(5*known/Math.max(tot,6))):0;return h('span',{class:'meter','aria-label':known+' cards learned'},[0,1,2,3,4].map(i=>h('i',{class:i<lvl?'on':''})))}
+function renderVerbs(){
+  if(detailVerb)return renderDetail(VMAP[detailVerb]);
+  const q=vSearch.trim().toLowerCase();
+  const list=VERBS.filter(v=>(vFilter==='all'||v.group===vFilter||(vFilter==='irregular'&&v.type!=='regular'))&&(!q||v.inf.includes(q)||v.mean.toLowerCase().includes(q)));
+  const inp=h('input',{class:'search',id:'vsearch',type:'search',placeholder:'Search verbs or meanings',value:vSearch,oninput:e=>{vSearch=e.target.value;const pos=e.target.selectionStart;render();const n=document.getElementById('vsearch');n.focus();n.setSelectionRange(pos,pos)}});
+  const f=h('div',{class:'filters'},[['all','All 44'],['core','Everyday'],['gospel','Gospel'],['irregular','Irregular']].map(([k,l])=>h('button',{'aria-pressed':String(vFilter===k),onclick:()=>{vFilter=k;render()}},l)));
+  return [inp,f,h('ul',{class:'vlist'},list.map(v=>h('li',{},h('button',{onclick:()=>{detailVerb=v.inf;render();window.scrollTo(0,0)}},
+      h('span',{class:'inf'},v.inf,v.type!=='regular'?h('span',{class:'tag'},v.type):null,h('span',{class:'mean'},v.mean)),meter(v))))),
+    list.length?null:h('p',{class:'note'},'No verbs match.')];
+}
+function renderDetail(v){
+  const persons=personsOn().length===6?[0,1,2,3,4,5]:[0,1,2,3,4,5];
+  const table=h('table',{},h('thead',{},h('tr',{},h('th',{},''),TENSES.map(t=>h('th',{},t.pt)))),
+    h('tbody',{},persons.map(p=>h('tr',{},h('th',{},PSPEAK[p]),TENSES.map((t,ti)=>h('td',{},h('button',{onclick:()=>say(phrase(v,ti,p)),title:v.forms[p][ti].en},v.forms[p][ti].f)))))));
+  return [h('div',{class:'detail'},
+    h('button',{class:'linkbtn',onclick:()=>{detailVerb=null;render()}},'‹ All verbs'),
+    h('h2',{},v.inf,spk(v.inf)),
+    h('p',{class:'hint',style:'margin:0'},v.mean,v.type!=='regular'?h('span',{class:'tag'},v.type):null),
+    h('h3',{},'Examples'),
+    h('div',{style:'display:flex;flex-direction:column;gap:8px'},v.ex.map(e=>h('div',{class:'example'},h('div',{},h('p',{},e[0]),h('p',{class:'en'},e[1])),spk(e[0],true)))),
+    h('h3',{},'Conjugation'),
+    h('p',{class:'note',style:'margin:0 0 8px'},'Tap any form to hear it. Scroll sideways for every tense.'),
+    h('div',{class:'tablewrap'},table),
+    h('p',{class:'note'},'Vós is rare in Mozambique. People say vocês instead, which uses the eles form.'))];
+}
+function renderSettings(){
+  const st=S.settings;const set=(k,val)=>{st[k]=val;save();render()};
+  const tenseBtns=h('div',{class:'wrap'},TENSES.map((t,i)=>h('button',{class:'toggle','aria-pressed':String(st.tenses.includes(i)),onclick:()=>{
+    const s=new Set(st.tenses);s.has(i)?s.delete(i):s.add(i);if(!s.size)s.add(0);set('tenses',[...s].sort())}},t.pt+' · '+t.like)));
+  const voiceSel=h('select',{id:'voice',onchange:e=>set('voice',e.target.value)},
+    voices.length?voices.map(v=>h('option',{value:v.name,selected:pickVoice()===v},v.name+' ('+v.lang+')')):h('option',{},'No Portuguese voice found'));
+  const c=counts();
+  return [
+    installPanel(),
+    h('div',{class:'panel'},h('h3',{},'What to practise'),
+      h('div',{class:'field'},h('span',{},'Meanings (English → Portuguese)'),h('button',{class:'toggle','aria-pressed':String(st.meaning),onclick:()=>set('meaning',!st.meaning)},st.meaning?'On':'Off')),
+      h('div',{class:'field'},h('span',{},'Conjugations'),h('button',{class:'toggle','aria-pressed':String(st.conj),onclick:()=>set('conj',!st.conj)},st.conj?'On':'Off')),
+      h('div',{class:'field',style:'display:block'},h('span',{},'Tenses'),tenseBtns,h('p',{class:'note',style:'margin:4px 0 0'},'Start with Presente. Add Pretérito perfeito once most present cards say "Good".')),
+      h('div',{class:'field'},h('span',{},'Verbs'),h('select',{id:'group',onchange:e=>set('group',e.target.value)},[['all','All 44'],['core','Everyday (30)'],['gospel','Gospel (14)']].map(([k,l])=>h('option',{value:k,selected:st.group===k},l)))),
+      h('div',{class:'field'},h('span',{},'Include vós'),h('button',{class:'toggle','aria-pressed':String(st.vos),onclick:()=>set('vos',!st.vos)},st.vos?'On':'Off')),
+      h('div',{class:'field'},h('label',{for:'npd'},'New cards per day'),h('input',{id:'npd',type:'number',min:0,max:100,value:st.newPerDay,onchange:e=>set('newPerDay',Math.max(0,Math.min(100,+e.target.value||0)))}))),
+    h('div',{class:'panel'},h('h3',{},'Pronunciation'),
+      synth?null:h('p',{class:'note'},'This browser can’t speak text.'),
+      h('div',{class:'field'},h('label',{for:'voice'},'Voice'),voiceSel),
+      h('div',{class:'field'},h('label',{for:'rate'},'Speed'),h('select',{id:'rate',onchange:e=>set('rate',+e.target.value)},[[0.7,'Slow'],[0.85,'Relaxed'],[1,'Normal']].map(([r,l])=>h('option',{value:r,selected:st.rate===r},l)))),
+      h('div',{class:'field'},h('span',{},'Speak answer when card flips'),h('button',{class:'toggle','aria-pressed':String(st.auto),onclick:()=>set('auto',!st.auto)},st.auto?'On':'Off')),
+      h('div',{class:'field'},h('span',{},'Test'),h('button',{class:'btn',style:'padding:8px 14px',onclick:()=>say('Bom dia! Estou a aprender português em Moçambique.')},'Play sample')),
+      h('p',{class:'note'},'Pick a Portugal (pt-PT) voice. Mozambican speech is closer to it than to Brazilian, though Mozambicans say their vowels more fully. For a better voice on iPhone, go to Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal) and download an Enhanced voice, then reopen this page.')),
+    h('div',{class:'panel'},h('h3',{},'How to use this well'),
+      h('ol',{},
+        h('li',{},'Practise once a day. Do the reviews first. They are the cards you are about to forget.'),
+        h('li',{},'Always say the answer out loud before you flip. Then listen and repeat it once more.'),
+        h('li',{},'After each answer, tap how well you knew it. “I didn’t know it” brings the card back in a minute. “Easy” sends it away for days or weeks. Each time you get a card right, the wait before you see it again gets longer.'),
+        h('li',{},'Learn the irregular verbs first (the list is already in that order).'),
+        h('li',{},'Read the example sentences aloud. They show the verb the way people say it in Maputo or Beira.'))),
+    h('div',{class:'panel'},h('h3',{},'Share it'),
+      h('p',{},'Tap Share at the top of the screen to copy the link, then paste it into a text, WhatsApp or email.'),
+      h('button',{class:'btn primary',onclick:shareApp},'Share this app')),
+
+    h('div',{class:'panel'},h('h3',{},'Your progress'),
+      h('p',{class:'note'},c.known+' of '+c.total+' cards learned. '+(remote?'Saved to your Claude account.':'Saved on this device.')),
+      h('p',{class:'note'},'From your spreadsheet: fixed "eu devi" (was "devia"), added the missing "eles sentem" row, corrected "vós arrependeis-vos", and put the pronoun first in the subjunctive of arrepender-se ("que eu me arrependa"), which is how it is said.'))
+  ];
+}
+function tenseBody(i){const T=TENSES[i];return h('div',{class:'tbody'},
+  h('p',{class:'when'},T.when),
+  h('ul',{},T.uses.map(u=>h('li',{},u))),
+  h('div',{class:'clues'},h('span',{class:'note'},'Clue words: '),T.clues.map(c=>h('span',{class:'chip'},c))),
+  h('div',{style:'display:flex;flex-direction:column;gap:6px'},T.ex.map(e=>h('div',{class:'example'},h('div',{},h('p',{},e[0]),h('p',{class:'en'},e[1])),spk(e[0],true)))),
+  h('p',{class:'tip'},T.tip))}
+function renderTenses(){
+  const pick=[['Happening now, or usually','Presente',0],['Finished, at one moment in the past','Pretérito perfeito',1],['Was happening, or used to happen','Pretérito imperfeito',2],
+    ['After “que” with want, hope, ask, maybe','Presente do conjuntivo',3],['“If I were…”, or a past “wanted that…”','Imperfeito do conjuntivo',4],['After quando or se, about the future','Futuro do conjuntivo',5]];
+  return [h('p',{class:'lede'},'Each tense answers a question about time. Start with the first three. The last three are the conjuntivo (subjunctive), which comes after trigger words.'),
+    h('div',{class:'panel'},h('h3',{},'Which tense do I need?'),
+      h('ul',{class:'chooser'},pick.map(([q,a,i])=>h('li',{},h('a',{href:'#tense-'+i,onclick:e=>{e.preventDefault();document.getElementById('tense-'+i).scrollIntoView({behavior:'smooth'})}},h('span',{},q),h('b',{},a)))))),
+    TENSES.map((T,i)=>h('section',{class:'panel tense',id:'tense-'+i},
+      h('div',{class:'thead'},h('h3',{},T.pt),h('span',{class:'chip t'},T.en)),
+      h('p',{class:'like'},'In English: ',h('b',{},T.like)),
+      tenseBody(i),
+      h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
+}
+const APP_URL='https://djeppsonbestdayhr.github.io/verbos/';
+let installDev=(/Macintosh/.test(navigator.userAgent)&&!('ontouchend' in document))?'mac':'iphone';
+function copyBtn(label){const b=h('button',{class:'btn',style:'padding:8px 14px;font-size:14px',onclick:()=>{
+  const done=ok=>{b.textContent=ok?'✓ Link copied':'Press and hold the link to copy';setTimeout(()=>b.textContent=label,2000)};
+  try{navigator.clipboard.writeText(APP_URL).then(()=>done(true),()=>done(false))}catch(e){done(false)}}},label);return b}
+function installPanel(){
+  const tabs=h('div',{class:'filters',style:'margin:4px 0 12px'},[['iphone','iPhone'],['mac','Mac']].map(([k,l])=>h('button',{'aria-pressed':String(installDev===k),onclick:()=>{installDev=k;render()}},l)));
+  const icon=h('img',{src:'icon-512.png',alt:'Verbos MZ app icon',class:'appicon'});
+  const linkTxt=h('div',{class:'linktxt'},APP_URL);
+  let body;
+  if(installDev==='iphone'){body=[
+    h('ol',{},h('li',{},'Open this link in the Safari app. If it opened inside Messages or another app, copy the link and paste it into Safari.'),
+      h('li',{},'Tap the Share button (square with an up arrow). On newer iPhones it is under the \u22ef button.'),
+      h('li',{},'Scroll down and tap Add to Home Screen. If you do not see it, tap View More or Edit Actions.'),
+      h('li',{},'Tap Add. The Verbos icon appears on your home screen.')),
+    h('div',{class:'iconrow'},icon,h('p',{class:'note',style:'margin:0'},'This is the icon you will get. The app also works without internet once you have opened it.')),
+    h('p',{},copyBtn('Copy link'))];
+  }else{body=[
+    h('h4',{},'Safari'),
+    h('ol',{},h('li',{},'Open this link in Safari.'),
+      h('li',{},'In the menu bar, choose File \u2192 Add to Dock, then Add. (This needs macOS Sonoma or later.)')),
+    h('h4',{},'Chrome or Edge'),
+    h('ol',{},h('li',{},'Click the install icon at the right end of the address bar, or open the \u22ee menu and choose Cast, save, and share \u2192 Install page as app.')),
+    h('div',{class:'iconrow'},icon,h('p',{class:'note',style:'margin:0'},'It opens in its own window with the Verbos icon.')),
+    h('p',{},copyBtn('Copy link'))];
+  }
+  return h('div',{class:'panel',id:'install'},h('h3',{},'Put it on your home screen'),tabs,linkTxt,...body);
+}
+function shareApp(){
+  const msg=h('p',{class:'ok'},'');
+  const bg=h('div',{class:'sheet-bg',onclick:e=>{if(e.target===bg)bg.remove()}},
+    h('div',{class:'sheet',role:'dialog','aria-label':'Share this app'},
+      h('h3',{},'Share Verbos MZ'),
+      h('p',{class:'note',style:'margin:0'},'Send this link in a text, WhatsApp or email. Anyone can open it. Each person’s progress is saved on their own phone or computer.'),
+      h('div',{class:'link'},APP_URL),msg,
+      h('button',{class:'btn primary block',onclick:()=>copyLink(msg)},'Copy link'),
+      h('button',{class:'btn block',onclick:()=>{bg.remove();go('settings')}},'How to add it to your home screen'),
+      h('button',{class:'btn block',onclick:()=>bg.remove()},'Close')));
+  document.body.append(bg);copyLink(msg);
+}
+function copyLink(msg){
+  const fallback=()=>{msg.textContent='Press and hold the link above, then tap Copy.';msg.style.color='var(--muted)';const r=document.createRange();const n=document.querySelector('.sheet .link');if(n){r.selectNodeContents(n);const s=getSelection();s.removeAllRanges();s.addRange(r)}};
+  const btn=document.querySelector('.sheet .btn.primary');
+  msg.textContent='';
+  try{navigator.clipboard.writeText(APP_URL).then(()=>{
+    msg.textContent='Link copied at '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit',second:'2-digit'})+'. Paste it into a message.';msg.style.color='';
+    if(btn){btn.textContent='✓ Copied';btn.style.background='var(--green)';clearTimeout(btn._t);btn._t=setTimeout(()=>{btn.textContent='Copy link';btn.style.background=''},1800)}
+  },fallback)}catch(e){fallback()}
+}
+document.getElementById('sharebtn').addEventListener('click',shareApp);
+function render(){view.replaceChildren(...(currentTab==='practice'?renderPractice():currentTab==='verbs'?renderVerbs():currentTab==='tenses'?renderTenses():renderSettings()).flat().filter(Boolean))}
+function go(tab){currentTab=tab;if(tab!=='verbs')detailVerb=null;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));render();window.scrollTo(0,0)}
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+render();
+</script>
+
+</body>
+</html>
