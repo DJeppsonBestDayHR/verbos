@@ -121,6 +121,7 @@ select,input[type=number]{font:15px var(--body);padding:8px;border-radius:10px;b
 .wrap{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
 .note{font-size:13px;color:var(--muted)}
 .done{text-align:center;padding:30px 10px}
+.done{display:flex;flex-direction:column;gap:10px}
 .done b{font:800 30px var(--display);display:block;margin-bottom:6px}
 details.why{margin-top:8px}
 details.why summary{color:var(--brand);font-weight:600;font-size:14px;cursor:pointer;padding:4px 0}
@@ -351,7 +352,13 @@ function eligibleKeys(){const out=[];const st=S.settings;const tenses=[...st.ten
     if(st.meaning)out.push('m|'+v.inf);
     if(st.conj)for(const t of tenses)for(const p of personsOn())out.push('c|'+v.inf+'|'+t+'|'+p);
   }return out}
-function newLeft(){if(S.day.d!==today()){S.day={d:today(),n:0}}return Math.max(0,S.settings.newPerDay-S.day.n)}
+function newLeft(){if(S.day.d!==today()){S.day={d:today(),n:0,extra:0}}return Math.max(0,S.settings.newPerDay+(S.day.extra||0)-S.day.n)}
+function giveMore(){newLeft();const keys=eligibleKeys();const fresh=keys.filter(k=>!S.cards[k]).length;
+  if(fresh>0){S.day.extra=(S.day.extra||0)+15;save();startSession();return}
+  // Every card has been seen: review the 15 that are due soonest, ahead of schedule.
+  const ahead=keys.filter(k=>S.cards[k]).sort((a,b)=>S.cards[a].due-S.cards[b].due).slice(0,15);
+  session={queue:ahead,done:0,total:ahead.length,revealed:false,exIdx:0,ahead:true};render()}
+function moreLabel(){const keys=eligibleKeys();return keys.some(k=>!S.cards[k])?'Give me 15 more new cards':'Review 15 cards early'}
 function counts(){const now=Date.now();let due=0,fresh=0,known=0;const keys=eligibleKeys();
   for(const k of keys){const c=S.cards[k];if(!c)fresh++;else{if(c.due<=now)due++;if(c.box>=3)known++}}
   return {due,fresh,known,total:keys.length,newToday:Math.min(fresh,newLeft())}}
@@ -369,7 +376,7 @@ function startSession(){const now=Date.now();const keys=eligibleKeys();
   const q=[];let i=0,j=0;while(i<due.length||j<fresh.length){if(i<due.length)q.push(due[i++]);if(i<due.length)q.push(due[i++]);if(j<fresh.length)q.push(fresh[j++])}
   session={queue:q.slice(0,30),done:0,total:Math.min(q.length,30),revealed:false,exIdx:0};render()}
 function rateCard(r){const k=session.queue.shift();const c=S.cards[k];if(!c){S.day.n++}
-  const ni=nextInterval(c,r);S.cards[k]={box:ni.box,due:Date.now()+ni.ms,n:(c?c.n:0)+1};
+  const ni=nextInterval(c,r);S.cards[k]={box:ni.box,due:Date.now()+ni.ms,n:(c?c.n:0)+1,l:Date.now()};
   if(r===0){session.queue.splice(Math.min(3,session.queue.length),0,k)}else session.done++;
   session.revealed=false;session.choices=null;session.exIdx++;save();render()}
 
@@ -431,8 +438,10 @@ function renderPractice(){
   if(session&&session.queue.length){return renderCard()}
   if(session&&!session.queue.length){const c=counts();const box=h('div',{class:'card done'},
       h('b',{},'Muito bem!'),h('p',{},'You finished '+session.total+' cards.'),
-      h('p',{class:'note'},c.due?c.due+' more are due now.':'Nothing else is due right now. Come back tomorrow.'),
-      h('button',{class:'btn primary block',onclick:()=>{session=null;render()}},'Done'));
+      h('p',{class:'note'},c.due?c.due+' more are due now.':'Nothing else is due right now. Come back tomorrow, or keep going.'),
+      c.due?h('button',{class:'btn yellow block',onclick:startSession},'Review the '+c.due+' due now'):null,
+      h('button',{class:c.due?'btn block':'btn yellow block',onclick:giveMore},moreLabel()),
+      h('button',{class:'btn primary block',onclick:()=>{session=null;render()}},'Done for today'));
     return [box]}
   const c=counts();
   const tl=S.settings.tenses.map(t=>TENSES[t].pt).join(', ');
@@ -442,7 +451,8 @@ function renderPractice(){
       h('div',{class:'stat'},h('b',{},c.due),h('small',{},'due for review')),
       h('div',{class:'stat'},h('b',{},c.newToday),h('small',{},'new today')),
       h('div',{class:'stat'},h('b',{},c.known),h('small',{},'of '+c.total+' learned'))),
-    h('button',{class:'btn yellow block',disabled:!(c.due+c.newToday),onclick:startSession},c.due+c.newToday?'Start practice':'All caught up for today'),
+    c.due+c.newToday?h('button',{class:'btn yellow block',onclick:startSession},'Start practice')
+      :h('div',{style:'display:flex;flex-direction:column;gap:8px'},h('p',{class:'note',style:'margin:0;text-align:center'},'All caught up for today. Want to keep going?'),h('button',{class:'btn yellow block',onclick:giveMore},moreLabel())),
     h('p',{class:'note',style:'margin-top:12px'},'🔊 Tap any speaker button to hear Portuguese. It plays even in Silent mode. If you hear nothing, turn the volume up while the app is open.'),
     h('p',{class:'note',style:'margin-top:12px'},'Practising: '+[S.settings.meaning?'meanings':null,S.settings.conj?'conjugations ('+tl+')':null].filter(Boolean).join(' + ')+'. ',
       h('button',{class:'linkbtn',onclick:()=>go('settings')},'Change'))
@@ -601,6 +611,7 @@ function renderSettings(){
   const c=counts();
   return [
     installPanel(),
+    syncPanel(),
     h('div',{class:'panel'},h('h3',{},'What to practise'),
       h('div',{class:'field'},h('span',{},'Meanings (English → Portuguese)'),h('button',{class:'toggle','aria-pressed':String(st.meaning),onclick:()=>set('meaning',!st.meaning)},st.meaning?'On':'Off')),
       h('div',{class:'field'},h('span',{},'Conjugations'),h('button',{class:'toggle','aria-pressed':String(st.conj),onclick:()=>set('conj',!st.conj)},st.conj?'On':'Off')),
@@ -655,7 +666,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='10';
+const APP_VERSION='11';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
@@ -672,6 +683,50 @@ function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textCont
   setTimeout(()=>{if(!started)log('Speech did not start after 3 seconds.')},3000);
   setTimeout(()=>{if(silentEl)log('Loop after 1s: '+(silentEl.paused?'paused':'playing'))},1000);
 }
+// ---------- moving progress between your own devices (no server: the progress travels inside a link) ----------
+function b64u(bytes){let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function unb64u(str){str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.length%4)str+='=';const b=atob(str);const a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
+async function packProgress(){const json=JSON.stringify({v:1,cards:S.cards,custom:S.custom,day:S.day});const raw=new TextEncoder().encode(json);
+  if(window.CompressionStream){const cs=new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw')));return 'z'+b64u(new Uint8Array(await cs.arrayBuffer()))}
+  return 'j'+b64u(raw)}
+async function unpackProgress(code){code=code.trim();const m=code.match(/#sync=([A-Za-z0-9_-]+)/);if(m)code=m[1];
+  const kind=code[0],bytes=unb64u(code.slice(1));let raw=bytes;
+  if(kind==='z'){raw=new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}
+  else if(kind!=='j')throw new Error('bad');
+  const d=JSON.parse(new TextDecoder().decode(raw));if(!d||!d.cards)throw new Error('bad');return d}
+function mergeProgress(d){let updated=0,added=0;
+  for(const [k,c] of Object.entries(d.cards||{})){const m=S.cards[k];
+    if(!m){S.cards[k]=c;added++}else if((c.n||0)>(m.n||0)||((c.n||0)===(m.n||0)&&(c.l||0)>(m.l||0))){S.cards[k]=c;updated++}}
+  let verbs=0;for(const cv of (d.custom||[])){if(cv&&cv.inf&&!S.custom.some(x=>x.inf===cv.inf)&&!BASE_VERBS.some(x=>x.inf===cv.inf)){S.custom.push(cv);verbs++}}
+  if(d.day&&d.day.d===today()){newLeft();S.day.n=Math.max(S.day.n,d.day.n||0)}
+  session=null;save();rebuildVerbs();render();return {added,updated,verbs}}
+function mergeSummary(r){return 'Done. '+(r.added+r.updated)+' cards brought in'+(r.verbs?', plus '+r.verbs+' of your own verbs':'')+'.'}
+async function sendProgress(out){out.textContent='Making your link…';
+  try{const code=await packProgress();const url=APP_URL+'#sync='+code;out.replaceChildren();
+    const done=t=>{const p=h('p',{class:'ok',style:'margin:6px 0 0'},t);out.append(p)};
+    if(navigator.share){out.append(h('button',{class:'btn primary block',onclick:()=>navigator.share({title:'My Verbos progress',url}).then(()=>done('Sent. Open it on your other device.')).catch(()=>{})},'Share link (AirDrop, Messages…)'))}
+    out.append(h('button',{class:'btn block',style:'margin-top:8px',onclick:()=>{try{navigator.clipboard.writeText(url).then(()=>done('Link copied. Send it to yourself and open it on your other device.'),()=>done('Could not copy. Use the Share button instead.'))}catch(e){done('Could not copy. Use the Share button instead.')}}},'Copy link'));
+  }catch(e){out.textContent='Could not make the link on this browser.'}}
+function syncPanel(){
+  const out=h('div',{});const box=h('textarea',{id:'synccode',rows:2,class:'search',placeholder:'Paste the progress link here',style:'resize:vertical'});const msg=h('p',{class:'note',style:'margin:6px 0 0'},'');
+  return h('div',{class:'panel',id:'sync-panel'},h('h3',{},'Use on your phone and computer'),
+    h('p',{class:'note',style:'margin:0 0 10px'},'Your progress stays on each device and is never uploaded. To move it, send yourself a private link, then bring it in on the other device. The two are combined, keeping whichever is further along for each card. Do it whenever you switch devices.'),
+    h('p',{style:'margin:0 0 6px;font-weight:600'},'1. On the device you practised on'),h('button',{class:'btn yellow block',onclick:()=>sendProgress(out)},'Send my progress to another device'),out,
+    h('p',{style:'margin:14px 0 0;font-weight:600'},'2. On the other device'),
+    h('p',{class:'note',style:'margin:4px 0 0'},'Press and hold the link in Messages (or wherever you sent it) and tap Copy. Do not just tap it: that opens Safari, which keeps separate progress from your Verbos icon. Open Verbos from your home screen or Dock, come here, and paste it below.'),
+    h('div',{style:'margin-top:12px;display:flex;flex-direction:column;gap:8px'},box,
+      h('button',{class:'btn block',onclick:async()=>{try{const d=await unpackProgress(box.value);msg.textContent=mergeSummary(mergeProgress(d))}catch(e){msg.textContent='That does not look like a Verbos progress link. Copy the whole link and try again.'}}},'Bring in progress'),msg),
+    h('p',{class:'note'},'Only share this link with yourself. Anyone who opens it gets a copy of your progress, though they cannot change yours.'))}
+async function checkSyncLink(){const m=location.hash.match(/^#sync=([A-Za-z0-9_-]+)/);if(!m)return;
+  let d;try{d=await unpackProgress(m[1])}catch(e){history.replaceState(null,'',location.pathname);return}
+  const n=Object.keys(d.cards||{}).length;
+  const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet',role:'dialog','aria-label':'Bring in progress'},
+    h('h3',{},'Bring in your progress?'),
+    h('p',{class:'note',style:'margin:0'},'This link has '+n+' practised cards'+((d.custom||[]).length?' and '+d.custom.length+' of your own verbs':'')+'. They will be combined with this device’s progress. Nothing here is lost.'),
+    h('button',{class:'btn yellow block',onclick:()=>{const r=mergeProgress(d);history.replaceState(null,'',location.pathname);bg.replaceChildren(h('div',{class:'sheet'},h('h3',{},'All set'),h('p',{class:'ok',style:'margin:0'},mergeSummary(r)),h('button',{class:'btn primary block',onclick:()=>bg.remove()},'Start practising')))}},'Combine with this device'),
+    h('button',{class:'btn block',onclick:()=>{history.replaceState(null,'',location.pathname);bg.remove()}},'Not now')));
+  document.body.append(bg)}
+addEventListener('hashchange',checkSyncLink);setTimeout(checkSyncLink,0);
 async function forceUpdate(e){const b=e&&e.target;if(b)b.textContent='Updating…';
   try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}}catch(x){}
   try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(x){}
