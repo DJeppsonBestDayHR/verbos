@@ -160,7 +160,7 @@ details.why .tbody{margin-top:8px}
 <div class="app">
   <header class="top">
     <h1>Verbos <span>MZ</span></h1>
-    <div class="hdr-r"><div class="sub" id="sync">Saved on this phone</div><button class="sharebtn" id="sharebtn" aria-label="Share this app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Share</button></div>
+    <div class="hdr-r"><div class="sub" id="sync">Saved on this device</div><button class="sharebtn" id="sharebtn" aria-label="Share this app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Share</button></div>
   </header>
   <main id="view"></main>
   <nav class="tabs" aria-label="Sections">
@@ -282,7 +282,7 @@ function save(){S.t=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}ca
   if(remote){clearTimeout(pushTimer);pushTimer=setTimeout(push,1200)}}
 async function push(){if(!remote)return;if(pushing){pushAgain=true;return}pushing=true;
   try{await remote.set(JSON.parse(JSON.stringify(S)));setSync('Synced to your Claude account')}
-  catch(e){if(e&&e.code==='unavailable'){setTimeout(push,1500+Math.random()*1500)}else{remote=null;setSync('Saved on this phone')}}
+  catch(e){if(e&&e.code==='unavailable'){setTimeout(push,1500+Math.random()*1500)}else{remote=null;setSync('Saved on this device')}}
   pushing=false;if(pushAgain){pushAgain=false;push()}}
 function setSync(t){document.getElementById('sync').textContent=t}
 // Progress is kept in this browser (localStorage).
@@ -500,7 +500,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='4';
+const APP_VERSION='5';
 async function forceUpdate(e){const b=e&&e.target;if(b)b.textContent='Updating…';
   try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}}catch(x){}
   try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(x){}
