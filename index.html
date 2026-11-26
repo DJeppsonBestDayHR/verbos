@@ -149,6 +149,7 @@ details.why .tbody{margin-top:8px}
 .iconrow{display:flex;align-items:center;gap:14px;margin:4px 0}
 .diag{white-space:pre-wrap;font:12px/1.5 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;margin:8px 0 0;color:var(--fg)}
 .editor{display:flex;flex-direction:column;gap:10px}
+.editor>.linkbtn{align-self:flex-start}
 .etitle{font:800 30px/1.1 var(--display);margin:0}
 .eh{margin:10px 0 0}
 .efield{display:flex;flex-direction:column;gap:4px}
@@ -167,6 +168,11 @@ details.why .tbody{margin-top:8px}
 .gm-t{font:700 17px var(--display);min-width:0;flex:1}
 .gm-d{display:block;font:400 13px/1.4 var(--body);color:var(--muted);margin-top:2px}
 .gm-c{font-size:24px;color:var(--muted);flex:none}
+.sortrow{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:0 0 10px}
+.sortrow label{color:var(--muted);font-size:13px}
+.vgroup{background:var(--surface-2);color:var(--muted);font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:8px 14px}
+.cands{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.cand{border-top:1px solid var(--line);padding-top:8px}
 .linktxt{font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
 .sharebtn{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:6px 12px;font:600 13px var(--body);cursor:pointer}
 .sharebtn svg{width:16px;height:16px}
@@ -309,6 +315,55 @@ function joinStem(stem,end,cls){
   if(cls==='ar'&&/^[eé]/.test(end)){if(/c$/.test(stem))stem=stem.slice(0,-1)+'qu';else if(/ç$/.test(stem))stem=stem.slice(0,-1)+'c';else if(/g$/.test(stem))stem=stem.slice(0,-1)+'gu'}
   if(cls!=='ar'&&/^[aoá]/.test(end)){if(/gu$/.test(stem))stem=stem.slice(0,-2)+'g';else if(/c$/.test(stem))stem=stem.slice(0,-1)+'ç';else if(/g$/.test(stem))stem=stem.slice(0,-1)+'j'}
   return stem+end}
+function reflexivize(forms){const pr=['me','te','se','nos','vos','se'];
+  return forms.map((row,p)=>row.map((f,t)=>t>=3?pr[p]+' '+f:(p===3&&/s$/.test(f)?f.slice(0,-1):f)+'-'+pr[p]))}
+
+// ---------- looking verbs up in Wiktionary (free dictionary, CC BY-SA) ----------
+const WK='https://en.wiktionary.org/api/rest_v1/page/';
+const WKH={'Api-User-Agent':'Verbos-MZ language app (djeppsonbestdayhr.github.io/verbos)'};
+async function wkGet(kind,word){const url=WK+kind+'/'+encodeURIComponent(word.replace(/ /g,'_'));let r=await fetch(url,{headers:WKH});
+  if(r.status===429){await new Promise(x=>setTimeout(x,2000));r=await fetch(url,{headers:WKH})}
+  if(r.status===404)return null;if(!r.ok)throw new Error('wk '+r.status);return kind==='html'?r.text():r.json()}
+function txt(html){const d=document.createElement('div');d.innerHTML=String(html||'');d.querySelectorAll('sup,style,script').forEach(x=>x.remove());return d.textContent.replace(/\s+/g,' ').trim()}
+function wkSection(doc,id){const hd=doc.getElementById(id);return hd?hd.closest('section'):null}
+// Portuguese verb: meaning, examples, and the six tenses this app uses (European forms preferred)
+async function lookupPortuguese(word){
+  const def=await wkGet('definition',word);
+  const entries=def&&def.pt?def.pt.filter(e=>/verb/i.test(e.partOfSpeech||'')):[];
+  if(!entries.length)return null;
+  const defs=[],ex=[];
+  for(const e of entries)for(const d of e.definitions||[]){const t=txt(d.definition);if(t&&!/^(plural|feminine|alternative|obsolete) /i.test(t))defs.push(t);
+    for(const p of d.parsedExamples||[]){const pt=txt(p.example),en=txt(p.translation);
+      if(pt&&en&&pt.length<120&&!/\b(est(ou|ás|á|amos|ão|ava|avam))\s+\S+ndo\b/i.test(pt))ex.push([pt,en])}}
+  const clean=t=>t.replace(/\s*\([^)]*\)/g,'').replace(/\s*\[[^\]]*\]?/g,'').replace(/[.;:,]\s*$/,'').trim();
+  const seen=new Set();let meaning='';for(const t of defs.map(clean).flatMap(x=>x.split(/;\s*/)).filter(Boolean)){const k=t.toLowerCase();if(seen.has(k))continue;seen.add(k);const next=meaning?meaning+'; '+t:t;if(next.length>60&&meaning)break;meaning=next}
+  let forms=null;
+  try{const html=await wkGet('html',word);const doc=new DOMParser().parseFromString(html,'text/html');
+    const sec=wkSection(doc,'Portuguese');const table=sec&&sec.querySelector('table.roa-inflection-table');
+    if(table){const foot=(table.parentElement.querySelector('.roa-footnote-outer-div')||sec.querySelector('.roa-footnote-outer-div'));
+      let eu=null;if(foot){const m=foot.textContent.match(/(\d+)\s*European/);if(m)eu=m[1]}
+      const pick=td=>{const spans=[...td.querySelectorAll('[lang="pt"]')];if(!spans.length)return txt(td.innerHTML);
+        if(eu){for(const sp of spans){let n=sp.nextSibling;while(n&&n.nodeType===3&&!n.textContent.trim())n=n.nextSibling;if(n&&n.nodeName==='SUP'&&n.textContent.trim()===eu)return sp.textContent.trim()}}
+        return spans[0].textContent.trim()};
+      const rows={};let mood='';
+      for(const tr of table.querySelectorAll('tr')){const th=tr.querySelector('th');const tds=[...tr.querySelectorAll('td')];if(!th)continue;const head=th.textContent.trim();
+        if(/^Indicative/i.test(head))mood='ind';else if(/^Subjunctive/i.test(head))mood='sub';else if(/^Imperative/i.test(head))mood='imp';
+        else if(tds.length===6)rows[mood+':'+head.toLowerCase()]=tds.map(pick)}
+      const want=['ind:present','ind:preterite','ind:imperfect','sub:present','sub:imperfect','sub:future'];
+      if(want.every(k=>rows[k]&&rows[k].every(Boolean)))forms=[0,1,2,3,4,5].map(p=>want.map(k=>rows[k][p]))}}catch(e){}
+  return {inf:word,meaning:meaning?(/^to /i.test(meaning)?meaning:'to '+meaning):'',ex:ex.slice(0,2),forms}}
+// English word: Portuguese verb translations grouped by sense
+async function lookupEnglish(word){
+  const html=await wkGet('html',word.replace(/^to /i,''));if(!html)return [];
+  const doc=new DOMParser().parseFromString(html,'text/html');const sec=wkSection(doc,'English');if(!sec)return [];
+  const out=[];
+  for(const box of sec.querySelectorAll('[data-gloss]')){
+    let s=box.closest('section'),isVerb=false;while(s){const hd=s.querySelector(':scope > h3, :scope > h4, :scope > h5');if(hd&&/^Verb/.test(hd.id)){isVerb=true;break}if(hd&&/^(Noun|Adjective|Adverb|Interjection)/.test(hd.id))break;s=s.parentElement&&s.parentElement.closest('section')}
+    if(!isVerb)continue;const gloss=box.getAttribute('data-gloss')||'';if(/translations to be checked/i.test(gloss))continue;
+    for(const li of box.querySelectorAll('li')){if(!/^\s*Portuguese:/.test(li.textContent))continue;
+      const words=[...li.querySelectorAll(':scope > [lang="pt"], :scope > span > [lang="pt"]')].map(x=>x.textContent.trim()).filter((w,i,a)=>w&&a.indexOf(w)===i&&/^[a-zà-ú-]+$/i.test(w)&&/(ar|er|ir|or|-se)$/.test(w));
+      if(words.length)out.push({gloss,words})}}
+  return out}
 const COMPOUNDS={manter:'ter',obter:'ter',deter:'ter',conter:'ter',reter:'ter',entreter:'ter',abster:'ter',convir:'vir',provir:'vir',intervir:'vir',sobrevir:'vir',advir:'vir',desfazer:'fazer',refazer:'fazer',satisfazer:'fazer',contradizer:'dizer',predizer:'dizer',desdizer:'dizer',prever:'ver',rever:'ver',antever:'ver'};
 function conjugate(inf0){
   let inf=inf0.trim().toLowerCase();const refl=/-se$/.test(inf);if(refl)inf=inf.slice(0,-3);
@@ -322,8 +377,7 @@ function conjugate(inf0){
   }else{const m=inf.match(/^(.+)(ar|er|ir)$/);if(!m)return null;const stem=m[1],cls=m[2];
     let alt=stem;if(cls==='ir'){const v=stem.match(/^(.*)([eo])([^aeiouáéíóúâêôãõ]+u?)$/);if(v)alt=v[1]+(v[2]==='e'?'i':'u')+v[3]}
     forms=[0,1,2,3,4,5].map(p=>[0,1,2,3,4,5].map(t=>joinStem(((t===0&&p===0)||t===3)?alt:stem,END[cls][t][p],cls)));}
-  if(refl){const pr=['me','te','se','nos','vos','se'];
-    forms=forms.map((row,p)=>row.map((f,t)=>t>=3?pr[p]+' '+f:(p===3&&/s$/.test(f)?f.slice(0,-1):f)+'-'+pr[p]));}
+  if(refl)forms=reflexivize(forms);
   return forms}
 
 // ---------- state ----------
@@ -542,14 +596,37 @@ function renderVerbs(){
   if(detailVerb&&VMAP[detailVerb])return renderDetail(VMAP[detailVerb]);
   detailVerb=null;
   const q=vSearch.trim().toLowerCase();
-  const list=VERBS.filter(v=>(vFilter==='all'||v.group===vFilter||(vFilter==='irregular'&&v.type!=='regular'&&v.type!=='added'))&&(!q||v.inf.includes(q)||v.mean.toLowerCase().includes(q)));
+  const list=[...VERBS].filter(v=>(vFilter==='all'||v.group===vFilter||(vFilter==='irregular'&&v.type!=='regular'&&v.type!=='added'))&&(!q||v.inf.includes(q)||v.mean.toLowerCase().includes(q)));
+  const vs=S.settings.vsort||'order';
+  const TYPE_RANK={irregular:0,'stem change':1,spelling:2,reflexive:3,regular:4,added:5};
+  const know=v=>{let n=0,sum=0;for(const [k,c] of Object.entries(S.cards)){if(k.split('|')[1]===v.inf){n++;sum+=c.box}}return n?sum/n:-1};
+  if(vs==='az')list.sort((a,b)=>a.inf.localeCompare(b.inf,'pt'));
+  else if(vs==='type')list.sort((a,b)=>(TYPE_RANK[a.type]??9)-(TYPE_RANK[b.type]??9)||a.inf.localeCompare(b.inf,'pt'));
+  else if(vs==='weak'||vs==='strong'){const kk=new Map(list.map(v=>[v,know(v)]));list.sort((a,b)=>{const x=kk.get(a),y=kk.get(b);
+    if(x<0&&y<0)return 0;if(x<0)return 1;if(y<0)return -1;return vs==='weak'?x-y:y-x})}
+  const sortSel=h('div',{class:'sortrow'},h('label',{for:'vsort'},'Sort'),h('select',{id:'vsort',onchange:e=>{S.settings.vsort=e.target.value;save();render()}},
+    [['order','Suggested order'],['az','A to Z'],['type','Type (irregular first)'],['weak','Needs practice first'],['strong','Best known first']].map(([k,l])=>h('option',{value:k,selected:vs===k},l))));
   const inp=h('input',{class:'search',id:'vsearch',type:'search',placeholder:'Search verbs or meanings',value:vSearch,oninput:e=>{vSearch=e.target.value;const pos=e.target.selectionStart;render();const n=document.getElementById('vsearch');n.focus();n.setSelectionRange(pos,pos)}});
   const f=h('div',{class:'filters'},[['all','All '+VERBS.length],['core','Everyday'],['gospel','Gospel'],['irregular','Irregular'],...(S.custom.length?[['mine','My verbs ('+S.custom.length+')']]:[])].map(([k,l])=>h('button',{'aria-pressed':String(vFilter===k),onclick:()=>{vFilter=k;render()}},l)));
   const add=h('button',{class:'btn yellow block',style:'margin-bottom:10px',onclick:()=>startEdit(null)},'+ Add a verb');
-  return [add,inp,f,h('ul',{class:'vlist'},list.map(v=>h('li',{},h('button',{onclick:()=>{detailVerb=v.inf;render();window.scrollTo(0,0)}},
+  let lastType=null;const rows=[];for(const v of list){if(vs==='type'&&v.type!==lastType){lastType=v.type;rows.push(h('li',{class:'vgroup'},v.type==='added'?'Added by you':v.type[0].toUpperCase()+v.type.slice(1)))}rows.push(v)}
+  return [add,inp,f,sortSel,h('ul',{class:'vlist'},rows.map(v=>v.nodeType?v:h('li',{},h('button',{onclick:()=>{detailVerb=v.inf;render();window.scrollTo(0,0)}},
       h('span',{class:'inf'},v.inf,v.type!=='regular'?h('span',{class:'tag'},v.type):null,h('span',{class:'mean'},v.mean)),meter(v))))),
     list.length?null:h('p',{class:'note'},'No verbs match.')];
 }
+function claudePrompt(inf,mean,forms,ex){
+  const lines=TENSES.map((T,t)=>T.pt+': '+[0,1,2,3,4,5].map(p=>PSPEAK[p]+' '+forms[p][t]).join(', '));
+  return 'Please check this Portuguese verb for accuracy as it is used in Mozambique (European Portuguese spelling, 1990 agreement).\n\n'+
+    'Verb: '+inf+'\nEnglish meaning: '+(mean||'(none given)')+'\n\nConjugations:\n'+lines.join('\n')+
+    (ex&&ex.length?'\n\nExample sentences:\n'+ex.map(e=>'- '+e[0]+(e[1]?' ('+e[1]+')':'')).join('\n'):'')+
+    '\n\nPlease tell me:\n1. Is the meaning right? Suggest a short, clear English meaning.\n2. Which conjugations are wrong, with the correct forms.\n3. Are the example sentences natural in Mozambique? Suggest two short example sentences set in Mozambique, with English translations.'}
+function checkWithClaude(text,out){
+  const url='https://claude.ai/new?q='+encodeURIComponent(text);
+  const show=t=>{if(out)out.textContent=t};
+  try{navigator.clipboard.writeText(text).then(()=>show('Copied. Claude opened in a new tab. If the question is not already there, paste it.'),()=>show('Claude opened in a new tab. If the question is not there, copy it from below.'))}catch(e){}
+  window.open(url,'_blank','noopener')}
+function claudeButton(get){const out=h('p',{class:'note',style:'margin:4px 0 0'},'');
+  return h('div',{},h('button',{class:'btn block',onclick:()=>{const g=get();if(!g){out.textContent='Fill in the verb and its conjugations first.';return}checkWithClaude(claudePrompt(g.inf,g.mean,g.forms,g.ex),out)}},'Check with Claude on accuracy'),out)}
 function startEdit(inf){
   const c=inf?S.custom.find(x=>x.inf===inf):null;
   editing=c?{orig:c.inf,inf:c.inf,mean:c.mean,ex:[0,1].map(i=>(c.ex&&c.ex[i])?[...c.ex[i]]:['','']),forms:c.forms.map(r=>[...r])}
@@ -561,16 +638,39 @@ function renderEditor(){
   const fill=()=>{const inf=E.inf.trim().toLowerCase();if(!inf){msg.textContent='Type the Portuguese verb first, for example andar.';return}
     const f=conjugate(inf);if(!f){msg.textContent='That does not look like a verb. Portuguese verbs end in -ar, -er, -ir or -or (add -se for reflexive verbs).';return}
     E.forms=f;render()};
+  const lk=E.look||{};const lookMsg=h('p',{class:'note',style:'margin:0'},lk.msg||'');
+  const applyPt=r=>{const refl=E.refl;E.inf=refl?r.inf+'-se':r.inf;if(r.meaning)E.mean=r.meaning;
+    E.forms=r.forms?(refl?reflexivize(r.forms):r.forms):conjugate(E.inf);
+    if(r.ex.length&&!E.ex.some(e=>e[0].trim()))E.ex=[0,1].map(i=>r.ex[i]?[...r.ex[i]]:['','']);
+    E.look={msg:r.forms?'✓ Meaning'+(r.ex.length?', examples':'')+' and conjugations from Wiktionary. Check them below, then add the verb.':'Found the meaning in Wiktionary, but not a conjugation table, so the forms below follow the regular pattern. Check them.',ok:!!r.forms}};
+  const doLook=async(word,asEnglish)=>{word=String(word||'').trim().toLowerCase();if(!word){E.look={msg:'Type a verb first.'};render();return}
+    E.q=word;E.refl=/-se$/.test(word);const base=word.replace(/-se$/,'').replace(/^to /,'');
+    E.look={msg:'Looking up '+word+'…'};render();
+    try{if(!asEnglish){const r=await lookupPortuguese(base);if(r){applyPt(r);render();return}}
+      const c=await lookupEnglish(base);
+      if(c.length){E.look={msg:'“'+base+'” in Portuguese. Tap the verb that fits what you mean:',cands:c};render();return}
+      E.look={msg:'Could not find “'+word+'” as a Portuguese or English verb in Wiktionary. Check the spelling, or fill in the boxes below yourself.'};render()}
+    catch(e){E.look={msg:/429/.test(e.message)?'The dictionary is busy right now. Wait a few seconds and tap Look up again.':'Could not reach the dictionary. Check your internet connection, or fill in the boxes below yourself.'};render()}};
+  const lookBox=h('div',{class:'panel',style:'margin:0'},h('h3',{},'Look it up'),
+    h('p',{class:'note',style:'margin:0 0 8px'},'Type a verb in Portuguese or English (for example saltar or jump). The app looks it up in Wiktionary and fills in the meaning, examples and conjugations for you.'),
+    h('div',{style:'display:flex;gap:8px'},h('input',{id:'e-q',class:'search',value:E.q||'',placeholder:'saltar or jump',autocapitalize:'none',autocomplete:'off',onkeydown:e=>{if(e.key==='Enter')doLook(e.target.value)},oninput:e=>{E.q=e.target.value}}),
+      h('button',{class:'btn primary',style:'white-space:nowrap;flex:none',onclick:()=>doLook(document.getElementById('e-q').value)},'Look up')),
+    lookMsg,
+    lk.cands?h('div',{class:'cands'},lk.cands.map(c=>h('div',{class:'cand'},h('p',{class:'note',style:'margin:0'},c.gloss),h('div',{class:'wrap',style:'margin:4px 0 0'},c.words.map(w=>h('button',{class:'toggle',onclick:()=>doLook(w)},w)))))):null,
+    E.q&&!lk.cands&&lk.msg&&!/Looking/.test(lk.msg)?h('button',{class:'linkbtn',onclick:()=>doLook(E.q,true)},'Not what you meant? Look up “'+E.q.replace(/-se$/,'')+'” as an English word'):null,
+    h('p',{class:'note',style:'margin:6px 0 0;font-size:12px'},'Source: ',h('a',{href:'https://en.wiktionary.org/',target:'_blank',rel:'noopener'},'Wiktionary'),' (CC BY-SA). Examples there are sometimes Brazilian; edit them if they sound wrong for Mozambique.'));
   const parts=[h('button',{class:'linkbtn',onclick:()=>{editing=null;render()}},'‹ Cancel'),
     h('h2',{class:'etitle'},E.orig?'Edit '+E.orig:'Add a verb'),
+    E.orig?null:lookBox,
     field('e-inf','Portuguese verb',E.inf,'andar',v=>{E.inf=v}),
     field('e-mean','English meaning',E.mean,'to walk',v=>{E.mean=v}),
-    h('button',{class:'btn primary block',onclick:fill},E.forms?'Fill in the conjugations again':'Fill in the conjugations'),msg];
+    h('button',{class:'btn block',onclick:fill},E.forms?'Use the regular pattern instead':'Fill in the conjugations by the regular pattern'),msg];
   if(E.forms){
     parts.push(h('h3',{class:'eh'},'Check the conjugations'),
-      h('p',{class:'note',style:'margin:0 0 8px'},'These follow the regular pattern. Irregular verbs (for example pedir → eu peço, or verbs ending in -uir like construir) need fixing by hand. Tap any box to change it. Scroll sideways for every tense.'),
+      h('p',{class:'note',style:'margin:0 0 8px'},(E.look&&E.look.ok)?'These come from Wiktionary, using the European (and Mozambican) forms. Tap any box to change it. Scroll sideways for every tense.':'These follow the regular pattern. Irregular verbs (for example pedir → eu peço, or verbs ending in -uir like construir) need fixing by hand. Use Look it up above to check them. Tap any box to change it. Scroll sideways for every tense.'),
       h('div',{class:'tablewrap'},h('table',{class:'etable'},h('thead',{},h('tr',{},h('th',{},''),TENSES.map(t=>h('th',{},t.pt)))),
         h('tbody',{},[0,1,2,3,4,5].map(p=>h('tr',{},h('th',{},PSPEAK[p]),[0,1,2,3,4,5].map(t=>h('td',{},h('input',{id:'f-'+p+'-'+t,value:E.forms[p][t],autocapitalize:'none',autocomplete:'off','aria-label':PSPEAK[p]+' '+TENSES[t].pt,oninput:e=>{E.forms[p][t]=e.target.value}})))))))),
+      claudeButton(()=>E.inf.trim()&&E.forms?{inf:E.inf.trim(),mean:E.mean.trim(),forms:E.forms,ex:E.ex.filter(e=>e[0].trim())}:null),
       h('h3',{class:'eh'},'Example sentences (optional)'),
       ...[0,1].map(i=>h('div',{class:'eex'},
         field('ex'+i+'pt','Portuguese',E.ex[i][0],i?'':'Eu ando até à paragem.',v=>{E.ex[i][0]=v}),
@@ -607,6 +707,7 @@ function renderDetail(v){
     h('h3',{},'Conjugation'),
     h('p',{class:'note',style:'margin:0 0 8px'},'Tap any form to hear it. Scroll sideways for every tense.'),
     h('div',{class:'tablewrap'},table),
+    h('div',{style:'margin-top:12px'},claudeButton(()=>({inf:v.inf,mean:v.mean,forms:v.forms.map(r=>r.map(c=>c.f)),ex:v.ex}))),
     h('p',{class:'note'},'Vós is rare in Mozambique. People say vocês instead, which uses the eles form.'))];
 }
 function renderSettings(){
@@ -681,7 +782,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='13';
+const APP_VERSION='14';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
