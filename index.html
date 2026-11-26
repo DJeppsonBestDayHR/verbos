@@ -436,7 +436,7 @@ function renderPractice(){
       h('div',{class:'stat'},h('b',{},c.newToday),h('small',{},'new today')),
       h('div',{class:'stat'},h('b',{},c.known),h('small',{},'of '+c.total+' learned'))),
     h('button',{class:'btn yellow block',disabled:!(c.due+c.newToday),onclick:startSession},c.due+c.newToday?'Start practice':'All caught up for today'),
-    h('p',{class:'note',style:'margin-top:12px'},'🔊 Tap any speaker button to hear Portuguese. If you hear nothing, turn the volume up (media volume, not the ringer), then close and reopen the app.'),
+    h('p',{class:'note',style:'margin-top:12px'},'🔊 Tap any speaker button to hear Portuguese. It plays even in Silent mode. If you hear nothing, turn the volume up while the app is open.'),
     h('p',{class:'note',style:'margin-top:12px'},'Practising: '+[S.settings.meaning?'meanings':null,S.settings.conj?'conjugations ('+tl+')':null].filter(Boolean).join(' + ')+'. ',
       h('button',{class:'linkbtn',onclick:()=>go('settings')},'Change'))
   ];
@@ -571,10 +571,9 @@ function renderSettings(){
       h('div',{class:'field'},h('label',{for:'rate'},'Speed'),h('select',{id:'rate',onchange:e=>set('rate',+e.target.value)},[[0.7,'Slow'],[0.85,'Relaxed'],[1,'Normal']].map(([r,l])=>h('option',{value:r,selected:st.rate===r},l)))),
       h('div',{class:'field'},h('span',{},'Speak answer when card flips'),h('button',{class:'toggle','aria-pressed':String(st.auto),onclick:()=>set('auto',!st.auto)},st.auto?'On':'Off')),
       h('div',{class:'field'},h('span',{},'Test'),h('button',{class:'btn',style:'padding:8px 14px',onclick:()=>say('Bom dia! Estou a aprender português em Moçambique.')},'Play sample')),
-      h('div',{class:'field'},h('span',{},'Play in Silent mode (iPhone)'),h('button',{class:'toggle','aria-pressed':String(st.trick),onclick:()=>{set('trick',!st.trick);if(!st.trick&&silentEl)silentEl.pause()}},st.trick?'On':'Off')),
       h('div',{class:'field',style:'display:block'},h('div',{class:'row-between',style:'margin:0'},h('span',{},'Sound check'),h('button',{class:'btn',style:'padding:8px 14px',onclick:e=>soundCheck(e.target.closest('.field').querySelector('pre'))},'Run sound check')),
         h('pre',{class:'diag'},'Tap Run sound check, then send a screenshot of this box if you hear nothing.')),
-      h('p',{class:'note'},h('b',{},'No sound? '),'Turn the volume up while the app is open, then tap Play sample. The app should play sound even with Silent mode on. If it is still silent, close and reopen the app, and check Settings → Accessibility → Spoken Content → Voices to make sure a Portuguese voice is downloaded. As a last resort, turning off Silent mode always works.'),
+      h('p',{class:'note'},h('b',{},'No sound? '),'The built-in verbs and sentences are recorded, so they play even in Silent mode. Turn the volume up while the app is open, then tap Play sample. Verbs you add yourself use the live voice, which Silent mode on iPhone mutes. The Speed setting applies to both.'),
       h('p',{class:'note'},'Pick a Portugal (pt-PT) voice. Mozambican speech is closer to it than to Brazilian, though Mozambicans say their vowels more fully. For a better voice on iPhone, go to Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal) and download an Enhanced voice, then reopen this page.')),
     h('div',{class:'panel'},h('h3',{},'How to use this well'),
       h('ol',{},
@@ -613,7 +612,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='8';
+const APP_VERSION='9';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
