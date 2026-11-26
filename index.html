@@ -470,6 +470,9 @@ function renderSettings(){
         h('li',{},'After each answer, tap how well you knew it. “I didn’t know it” brings the card back in a minute. “Easy” sends it away for days or weeks. Each time you get a card right, the wait before you see it again gets longer.'),
         h('li',{},'Learn the irregular verbs first (the list is already in that order).'),
         h('li',{},'Read the example sentences aloud. They show the verb the way people say it in Maputo or Beira.'))),
+    h('div',{class:'panel'},h('h3',{},'App version '+APP_VERSION),
+      h('p',{class:'note',style:'margin:0 0 8px'},'Updates load by themselves within a few minutes. To get the newest version right now, tap the button.'),
+      h('button',{class:'btn primary',onclick:forceUpdate},'Check for updates')),
     h('div',{class:'panel'},h('h3',{},'Share it'),
       h('p',{},'Tap Share at the top of the screen to copy the link, then paste it into a text, WhatsApp or email.'),
       h('button',{class:'btn primary',onclick:shareApp},'Share this app')),
@@ -497,6 +500,11 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
+const APP_VERSION='4';
+async function forceUpdate(e){const b=e&&e.target;if(b)b.textContent='Updating…';
+  try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}}catch(x){}
+  try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(x){}
+  location.replace(location.pathname+'?v='+Date.now())}
 const APP_URL='https://djeppsonbestdayhr.github.io/verbos/';
 let installDev=(/Macintosh/.test(navigator.userAgent)&&!('ontouchend' in document))?'mac':'iphone';
 function copyBtn(label){const b=h('button',{class:'btn',style:'padding:8px 14px;font-size:14px',onclick:()=>{
