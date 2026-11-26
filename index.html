@@ -700,7 +700,7 @@ function mergeProgress(d){let updated=0,added=0;
   let verbs=0;for(const cv of (d.custom||[])){if(cv&&cv.inf&&!S.custom.some(x=>x.inf===cv.inf)&&!BASE_VERBS.some(x=>x.inf===cv.inf)){S.custom.push(cv);verbs++}}
   if(d.day&&d.day.d===today()){newLeft();S.day.n=Math.max(S.day.n,d.day.n||0)}
   session=null;save();rebuildVerbs();render();return {added,updated,verbs}}
-function mergeSummary(r){return 'Done. '+(r.added+r.updated)+' cards brought in'+(r.verbs?', plus '+r.verbs+' of your own verbs':'')+'.'}
+function mergeSummary(r){const n=r.added+r.updated;return n||r.verbs?'Done. '+n+(n===1?' card':' cards')+' brought in'+(r.verbs?', plus '+r.verbs+' of your own verb'+(r.verbs===1?'':'s'):'')+'.':'Done. This device was already up to date.'}
 async function sendProgress(out){out.textContent='Making your link…';
   try{const code=await packProgress();const url=APP_URL+'#sync='+code;out.replaceChildren();
     const done=t=>{const p=h('p',{class:'ok',style:'margin:6px 0 0'},t);out.append(p)};
