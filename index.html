@@ -173,6 +173,29 @@ details.why .tbody{margin-top:8px}
 .vgroup{background:var(--surface-2);color:var(--muted);font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:8px 14px}
 .cands{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .cand{border-top:1px solid var(--line);padding-top:8px}
+.study{min-height:0}
+.shead{display:flex;flex-direction:column;gap:6px}
+.sverb{font:800 34px/1 var(--display);margin:4px 0 0;display:flex;align-items:center;gap:10px}
+.chip.ok{background:var(--green);color:var(--bg)}
+.stable{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.srow{display:grid;grid-template-columns:minmax(84px,auto) 1fr;grid-template-areas:"pro form" "pro en";column-gap:12px;align-items:center;text-align:left;padding:10px 14px;background:var(--surface);border:0;border-top:1px solid var(--line);color:var(--fg);cursor:pointer;font:inherit}
+.srow:first-child{border-top:0}
+.spro{grid-area:pro;color:var(--muted);font-size:14px}
+.sform{grid-area:form;font:700 24px/1.15 var(--display)}
+.sen{grid-area:en;color:var(--muted);font-size:12px}
+.sstem{color:var(--fg)}
+.send{color:var(--brand)}
+.sirr{color:var(--orange)}
+.shide{color:var(--muted);font:500 15px var(--body);border:1px dashed var(--line);border-radius:8px;padding:6px 10px;justify-self:start}
+.snav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.setlist{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.setitem{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--surface);border:0;color:var(--fg);font:inherit;cursor:pointer;text-align:left}
+.setitem.done{color:var(--muted)}
+.pickrow{width:100%;display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:0;color:var(--fg);cursor:pointer;font:inherit;text-align:left}
+.pickrow.on{background:color-mix(in srgb,var(--brand) 10%,var(--surface))}
+.pbox{width:24px;height:24px;flex:none;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;font-weight:800;color:var(--brand-ink)}
+.pickrow.on .pbox{background:var(--brand);border-color:var(--brand)}
+.ptenses{margin-left:auto;color:var(--green);font-size:12px;flex:none;text-align:right}
 .linktxt{font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
 .sharebtn{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:6px 12px;font:600 13px var(--body);cursor:pointer}
 .sharebtn svg{width:16px;height:16px}
@@ -191,6 +214,7 @@ details.why .tbody{margin-top:8px}
   </header>
   <main id="view"></main>
   <nav class="tabs" aria-label="Sections">
+    <button data-tab="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg>Estudar</button>
     <button data-tab="practice" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>Praticar</button>
     <button data-tab="verbs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Verbos</button>
     <button data-tab="tenses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tempos</button>
@@ -407,6 +431,8 @@ function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+
 function personsOn(){return S.settings.vos?[0,1,2,3,4,5]:[0,1,2,3,5]}
 function verbsOn(){const g=S.settings.group;return VERBS.filter(v=>g==='all'||v.group===g)}
 function eligibleKeys(){const out=[];const st=S.settings;const tenses=[...st.tenses].sort();
+  if(st.studyFirst!==false){const ps=personsOn();return Object.keys(S.cards).filter(k=>{const p=k.split('|');if(!VMAP[p[1]])return false;
+    return p[0]==='m'?st.meaning:(st.conj&&ps.includes(+p[3]))})}
   for(const v of verbsOn()){
     if(st.meaning)out.push('m|'+v.inf);
     if(st.conj)for(const t of tenses)for(const p of personsOn())out.push('c|'+v.inf+'|'+t+'|'+p);
@@ -494,6 +520,119 @@ function phrase(v,t,p){const f=v.forms[p][t].f;const cue=TENSES[t].cue;return (c
 
 const view=document.getElementById('view');
 
+
+// ---------- Estudar: learn a table before being tested on it ----------
+const MAXV=5,MAXT=3;
+const SUGGEST=['precisar','dever','sentir','estar','ser','ter','ir','fazer','querer','poder','dizer','dar','ver','vir','saber','ficar','chegar','encontrar','levar','deixar','achar','receber','seguir','sair','trazer','ler','ouvir','pedir','pôr','haver'];
+function studyState(){if(!S.study||typeof S.study!=='object')S.study={};const st=S.study;st.learned=st.learned||{};st.set=st.set||{verbs:[],tenses:[0]};return st}
+function suggested(){const order=[...SUGGEST,...VERBS.map(v=>v.inf)];return order.filter((v,i,a)=>VMAP[v]&&a.indexOf(v)===i)}
+function isLearned(inf,t){return !!studyState().learned[inf+'|'+t]}
+function setItems(){const st=studyState();const out=[];for(const inf of st.set.verbs)for(const t of st.set.tenses)if(VMAP[inf])out.push({inf,t,done:isLearned(inf,t)});return out}
+function defaultSet(){const st=studyState();if(st.set.verbs.length)return;const t=[0,1,2,3,4,5].find(t=>suggested().some(v=>!isLearned(v,t)))??0;
+  st.set={verbs:suggested().filter(v=>!isLearned(v,t)).slice(0,3),tenses:[t]}}
+// split a form into [before, stem, ending, after] so the ending can be coloured
+function splitForm(v,form){let pre='',post='',f=form;let m=f.match(/^(me|te|se|nos|vos) (.+)$/);if(m){pre=m[1]+' ';f=m[2]}
+  m=f.match(/^(.+)-(me|te|se|nos|vos)$/);if(m){post='-'+m[2];f=m[1]}
+  const base=v.inf.replace(/-se$/,'').replace(/ô/,'o');let stem=base.slice(0,-2);if(base==='ir'||base==='ser'||base==='ter'||base==='ver'||base==='dar'||base==='ler'||base==='vir'||base==='pôr'||base==='por')stem='';
+  let k=0;while(k<stem.length&&k<f.length&&f[k]===stem[k])k++;
+  const regular=k===stem.length&&stem.length>0;
+  return {pre,stem:f.slice(0,regular?k:0),end:f.slice(regular?k:0),post,irregular:!regular}}
+let study=null; // {i, phase:'see'|'cover'|'quiz', shown:Set, quiz:{order,pos,correct,round,streak,choices,picked}}
+function studyItems(){return setItems()}
+function startStudy(i){const items=studyItems();if(!items.length)return;study={i:Math.min(i||0,items.length-1),phase:'see',shown:new Set()};render();window.scrollTo(0,0)}
+function sayAsync(text){return new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res()}};setTimeout(fin,6000);
+  if(playRecorded(text)){player.onended=fin;player.onerror=fin;return}
+  if(!synth){fin();return}unlockAudio();if(synth.speaking||synth.pending)synth.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();if(v){u.voice=v;u.lang=v.lang}else u.lang='pt-PT';u.rate=S.settings.rate;u.onend=fin;u.onerror=fin;synth.speak(u)})}
+let chanting=0;
+async function chant(texts,btn){const id=++chanting;if(btn)btn.textContent='■ Stop';for(const t of texts){if(id!==chanting)return;await sayAsync(t);await new Promise(r=>setTimeout(r,250))}if(id===chanting&&btn)btn.textContent='▶ Hear it all'}
+function stopChant(){chanting++;if(player)player.pause();if(synth)synth.cancel()}
+function markLearned(inf,t){const st=studyState();st.learned[inf+'|'+t]=Date.now();
+  const due=Date.now()+DAY;for(const p of [0,1,2,3,4,5]){const k='c|'+inf+'|'+t+'|'+p;if(!S.cards[k])S.cards[k]={box:1,due,n:1,l:Date.now()}}
+  if(!S.cards['m|'+inf])S.cards['m|'+inf]={box:1,due,n:1,l:Date.now()};save();cloudPushSoon()}
+function tableFor(v,t,opts){const ps=personsOn();const T=TENSES[t];
+  return h('div',{class:'stable'},ps.map(p=>{const form=v.forms[p][t].f;const sp=splitForm(v,form);const shown=!opts.cover||opts.shown.has(p);
+    return h('button',{class:'srow'+(shown?'':' hidden-row'),onclick:()=>{if(opts.cover&&!shown){opts.shown.add(p);render();say(phrase(v,t,p))}else say(phrase(v,t,p))}},
+      h('span',{class:'spro'},(T.cue?T.cue+' ':'')+PSPEAK[p]),
+      shown?h('span',{class:'sform'},sp.pre?h('span',{class:'sstem'},sp.pre):null,h('span',{class:'sstem'},sp.stem),h('span',{class:sp.irregular?'sirr':'send'},sp.end),sp.post?h('span',{class:'sstem'},sp.post):null)
+           :h('span',{class:'sform shide'},'tap to reveal'),
+      h('span',{class:'sen'},shown?v.forms[p][t].en:''))}))}
+function renderStudy(){
+  const st=studyState();
+  if(study){const items=studyItems();const it=items[study.i];if(!it){study=null;return renderStudy()}
+    const v=VMAP[it.inf],T=TENSES[it.t];
+    const nav=h('div',{class:'row-between'},h('button',{class:'linkbtn',onclick:()=>{stopChant();study=null;render()}},'‹ Study set'),h('span',{class:'note'},'Table '+(study.i+1)+' of '+items.length));
+    const head=h('div',{class:'shead'},h('div',{class:'chips'},h('span',{class:'chip t'},T.pt),h('span',{class:'chip'},T.like),it.done?h('span',{class:'chip ok'},'✓ learned'):null),
+      h('h2',{class:'sverb'},v.inf,spk(v.inf)),h('p',{class:'hint',style:'margin:0'},v.mean),
+      h('details',{class:'why'},h('summary',{},'When do I use '+T.pt+'?'),tenseBody(it.t)));
+    const prevNext=h('div',{class:'snav'},
+      h('button',{class:'btn',disabled:study.i===0,onclick:()=>{stopChant();study={i:study.i-1,phase:'see',shown:new Set()};render()}},'‹ Previous'),
+      h('button',{class:'btn',disabled:study.i>=items.length-1,onclick:()=>{stopChant();study={i:study.i+1,phase:'see',shown:new Set()};render()}},'Next ›'));
+    const texts=personsOn().map(p=>phrase(v,it.t,p));
+    if(study.phase==='see'){
+      const chantBtn=h('button',{class:'btn block',onclick:e=>{if(e.currentTarget.textContent.startsWith('■')){stopChant();e.currentTarget.textContent='▶ Hear it all'}else chant(texts,e.currentTarget)}},'▶ Hear it all');
+      return [nav,h('div',{class:'card study'},head,
+        h('p',{class:'note',style:'margin:0'},'Step 1 · Look and listen. The ',h('span',{class:'send'},'coloured endings'),' show the pattern',v.forms.some(r=>splitForm(v,r[it.t].f).irregular)?'; ':'.',v.forms.some(r=>splitForm(v,r[it.t].f).irregular)?h('span',{},h('span',{class:'sirr'},'orange'),' forms are irregular, so learn them as a whole.'):null),
+        tableFor(v,it.t,{}),chantBtn,
+        h('button',{class:'btn primary block',onclick:()=>{stopChant();study.phase='cover';study.shown=new Set();render()}},'Step 2 · Cover it and recall ›')),prevNext]}
+    if(study.phase==='cover'){
+      const all=personsOn().every(p=>study.shown.has(p));
+      return [nav,h('div',{class:'card study'},head,
+        h('p',{class:'note',style:'margin:0'},'Step 2 · Say each form out loud, then tap the row to check yourself. Do the whole table, then try again until you do not need to peek.'),
+        tableFor(v,it.t,{cover:true,shown:study.shown}),
+        h('div',{class:'snav'},h('button',{class:'btn',onclick:()=>{study.shown=new Set();render()}},'Hide all again'),h('button',{class:'btn',onclick:()=>{study.phase='see';render()}},'‹ Back to the table')),
+        h('button',{class:all?'btn yellow block':'btn primary block',onclick:()=>{study.phase='quiz';study.quiz=newQuiz(it);render()}},'Step 3 · I’m ready, test me')),prevNext]}
+    return [nav,renderQuiz(it,v,T,head)];
+  }
+  defaultSet();
+  const items=setItems();const left=items.filter(x=>!x.done).length;
+  const learnedCount=Object.keys(st.learned).filter(k=>VMAP[k.split('|')[0]]).length;
+  const setCard=h('div',{class:'panel'},h('h3',{},'Your study set'),
+    items.length?h('div',{class:'setlist'},items.map((x,i)=>h('button',{class:'setitem'+(x.done?' done':''),onclick:()=>startStudy(i)},
+      h('span',{},h('b',{},x.inf),' · ',TENSES[x.t].pt),h('span',{class:'note'},x.done?'✓ learned':'›')))):h('p',{class:'note'},'Pick some verbs and a tense below.'),
+    items.length?h('button',{class:'btn yellow block',style:'margin-top:10px',onclick:()=>{const i=items.findIndex(x=>!x.done);startStudy(i<0?0:i)}},left?'Study ('+left+' to learn)':'Study again'):null,
+    left===0&&items.length?h('p',{class:'ok',style:'margin:8px 0 0'},'Everything in this set is learned. It is now in your daily review. Pick new verbs or another tense below.'):null);
+  // picker
+  const tPick=h('div',{class:'wrap'},TENSES.map((T,t)=>{const on=st.set.tenses.includes(t);return h('button',{class:'toggle','aria-pressed':String(on),onclick:()=>{
+      const set=new Set(st.set.tenses);if(on)set.delete(t);else{if(set.size>=MAXT){pickMsg('You can study up to '+MAXT+' tenses at a time.');return}set.add(t)}if(!set.size)set.add(t);st.set.tenses=[...set].sort();save();render()}},T.pt)}));
+  const vList=suggested().map(inf=>{const v=VMAP[inf];const on=st.set.verbs.includes(inf);const lt=[0,1,2,3,4,5].filter(t=>isLearned(inf,t));
+    const allDone=st.set.tenses.every(t=>isLearned(inf,t));
+    return h('li',{},h('button',{class:'pickrow'+(on?' on':''),'aria-pressed':String(on),onclick:()=>{
+        const set=st.set.verbs;if(on)st.set.verbs=set.filter(x=>x!==inf);else{if(set.length>=MAXV){pickMsg('You can study up to '+MAXV+' verbs at a time. Remove one first, or finish learning it.');return}st.set.verbs=[...set,inf]}save();render()}},
+      h('span',{class:'pbox'},on?'✓':''),h('span',{class:'inf'},inf,h('span',{class:'mean'},v.mean)),
+      h('span',{class:'ptenses'},lt.length?lt.map(t=>TENSES[t].pt.split(' ')[0].slice(0,4)+'.').join(' '):'',allDone?' ✓':'')))});
+  const msg=h('p',{class:'note',id:'pickmsg',style:'margin:6px 0 0;color:var(--red)'},'');
+  return [
+    h('p',{class:'lede'},'Learn a few tables well before you are tested on them. Study each table, cover it and recall it, then take a quick check. Learned tables go into your daily review in Praticar.'),
+    setCard,
+    h('div',{class:'panel'},h('h3',{},'Choose what to study'),
+      h('p',{class:'note',style:'margin:0 0 6px'},'Tenses (up to '+MAXT+'). Start with Presente.'),tPick,
+      h('p',{class:'note',style:'margin:12px 0 6px'},'Verbs (up to '+MAXV+'). '+st.set.verbs.length+' chosen. The list starts with precisar (-ar), dever (-er) and sentir (-ir) to show the three ending patterns, then the most useful irregular verbs.'),msg,
+      h('ul',{class:'vlist picklist'},vList)),
+    h('p',{class:'note'},learnedCount+' verb tables learned so far.')];
+}
+function pickMsg(t){const m=document.getElementById('pickmsg');if(m){m.textContent=t;m.scrollIntoView({block:'nearest'})}}
+function newQuiz(it){return {it,order:shuffle(personsOn()),pos:0,round:1,mistakes:0,streak:0,choices:null}}
+function renderQuiz(it,v,T,head){const q=study.quiz;const p=q.order[q.pos];const k='c|'+it.inf+'|'+it.t+'|'+p;
+  if(!q.choices)q.choices=makeChoices(k);const C=q.choices;
+  const card=h('div',{class:'card study'},head,
+    h('p',{class:'note',style:'margin:0'},'Step 3 · Quick check, round '+q.round+'. Get every form right in two rounds in a row and this table is learned. '+'Form '+(q.pos+1)+' of '+q.order.length+'.'),
+    h('p',{class:'prompt'},T.cue?h('span',{class:'cue'},T.cue+' '):null,PERSONS[p]+' … ',h('span',{style:'color:var(--brand)'},v.inf)),
+    h('div',{class:'choices'},C.opts.map((o,i)=>h('button',{class:'choice'+(C.picked==null?'':(o===C.correct?' right':(i===C.picked?' wrong':' dim'))),disabled:C.picked!=null,onclick:()=>{C.picked=i;if(o!==C.correct)q.mistakes++;render();say(phrase(v,it.t,p))}},o))));
+  if(C.picked!=null){const right=C.opts[C.picked]===C.correct;
+    card.append(h('p',{class:'rate-q',style:'margin:0;color:'+(right?'var(--green)':'var(--red)')},right?'✓ Right':'✗ It is '+C.correct),
+      h('button',{class:'btn primary block',onclick:()=>{
+        if(q.pos<q.order.length-1){q.pos++;q.choices=null;render();return}
+        // end of round
+        if(q.mistakes===0){q.streak++;if(q.streak>=2){markLearned(it.inf,it.t);study.phase='done';study.quiz=null;renderDone(it);return}}
+        else q.streak=0;
+        q.round++;q.pos=0;q.mistakes=0;q.order=shuffle(personsOn());q.choices=null;render()}},q.pos<q.order.length-1?'Next ›':'Finish round'));
+    if(!right)card.append(h('button',{class:'linkbtn',onclick:()=>{study.phase='see';study.quiz=null;render()}},'Look at the table again'));}
+  return card}
+function renderDone(it){study=null;const items=studyItems();const nextI=items.findIndex(x=>!x.done);
+  view.replaceChildren(h('div',{class:'card done'},h('b',{},'✓ '+it.inf+' · '+TENSES[it.t].pt+' learned'),
+    h('p',{},'Two perfect rounds. This table now joins your daily review in Praticar, starting tomorrow.'),
+    nextI>=0?h('button',{class:'btn yellow block',onclick:()=>startStudy(nextI)},'Next table: '+items[nextI].inf+' · '+TENSES[items[nextI].t].pt):h('p',{class:'ok'},'Your whole study set is learned.'),
+    h('button',{class:'btn block',onclick:()=>{study=null;render()}},'Back to my study set')))}
 function renderPractice(){
   if(session&&session.queue.length){return renderCard()}
   if(session&&!session.queue.length){const c=counts();const box=h('div',{class:'card done'},
@@ -512,7 +651,9 @@ function renderPractice(){
       h('div',{class:'stat'},h('b',{},c.newToday),h('small',{},'new today')),
       h('div',{class:'stat'},h('b',{},c.known),h('small',{},'of '+c.total+' learned'))),
     c.due+c.newToday?h('button',{class:'btn yellow block',onclick:e=>startWithSync(e.currentTarget)},'Start practice')
-      :h('div',{style:'display:flex;flex-direction:column;gap:8px'},h('p',{class:'note',style:'margin:0;text-align:center'},'All caught up for today. Want to keep going?'),h('button',{class:'btn yellow block',onclick:giveMore},moreLabel()),ghConf()?null:h('button',{class:'btn block',onclick:e=>{e.currentTarget.textContent='Checking…';checkNewVersion().then(n=>{if(n){try{localStorage.setItem(FLASH,JSON.stringify({summary:'',from:APP_VERSION}))}catch(x){}forceUpdate()}else render()})}},'Check for a new version')),
+      :h('div',{style:'display:flex;flex-direction:column;gap:8px'},h('p',{class:'note',style:'margin:0;text-align:center'},S.settings.studyFirst!==false?'All caught up. Daily review only uses tables you have learned in Estudar.':'All caught up for today. Want to keep going?'),
+        S.settings.studyFirst!==false?h('button',{class:'btn yellow block',onclick:()=>go('study')},'Learn something new in Estudar'):null,
+        eligibleKeys().length?h('button',{class:S.settings.studyFirst!==false?'btn block':'btn yellow block',onclick:giveMore},moreLabel()):null,ghConf()?null:h('button',{class:'btn block',onclick:e=>{e.currentTarget.textContent='Checking…';checkNewVersion().then(n=>{if(n){try{localStorage.setItem(FLASH,JSON.stringify({summary:'',from:APP_VERSION}))}catch(x){}forceUpdate()}else render()})}},'Check for a new version')),
     h('p',{class:'note',style:'margin-top:12px'},'🔊 Tap any speaker button to hear Portuguese. It plays even in Silent mode. If you hear nothing, turn the volume up while the app is open.'),
     h('p',{class:'note',style:'margin-top:12px'},'Practising: '+[S.settings.meaning?'meanings':null,S.settings.conj?'conjugations ('+tl+')':null].filter(Boolean).join(' + ')+'. ',
       h('button',{class:'linkbtn',onclick:()=>go('settings','practise')},'Change')),
@@ -728,6 +869,7 @@ function renderSettings(){
     practise:{t:'What to practise',d:tl+' · '+gl+' · '+st.newPerDay+' new a day',b:()=>[
     h('div',{class:'panel'},h('h3',{},'What to practise'),
       h('div',{class:'field'},h('span',{},'Meanings (English → Portuguese)'),h('button',{class:'toggle','aria-pressed':String(st.meaning),onclick:()=>set('meaning',!st.meaning)},st.meaning?'On':'Off')),
+      h('div',{class:'field'},h('span',{},'Daily review only uses what I studied (recommended)'),h('button',{class:'toggle','aria-pressed':String(st.studyFirst!==false),onclick:()=>set('studyFirst',st.studyFirst===false)},st.studyFirst!==false?'On':'Off')),
       h('div',{class:'field'},h('span',{},'Conjugations'),h('button',{class:'toggle','aria-pressed':String(st.conj),onclick:()=>set('conj',!st.conj)},st.conj?'On':'Off')),
       h('div',{class:'field',style:'display:block'},h('span',{},'Tenses'),tenseBtns,h('p',{class:'note',style:'margin:4px 0 0'},'Start with Presente. Add Pretérito perfeito once most present cards say "Good".')),
       h('div',{class:'field'},h('span',{},'Verbs'),h('select',{id:'group',onchange:e=>set('group',e.target.value)},[['all','All '+VERBS.length],['core','Everyday ('+VERBS.filter(v=>v.group==='core').length+')'],['gospel','Gospel ('+VERBS.filter(v=>v.group==='gospel').length+')'],...(S.custom.length?[['mine','My verbs ('+S.custom.length+')']]:[])].map(([k,l])=>h('option',{value:k,selected:st.group===k},l)))),
@@ -784,7 +926,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='15';
+const APP_VERSION='16';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
@@ -804,7 +946,7 @@ function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textCont
 // ---------- moving progress between your own devices (no server: the progress travels inside a link) ----------
 function b64u(bytes){let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function unb64u(str){str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.length%4)str+='=';const b=atob(str);const a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
-async function packProgress(){const json=JSON.stringify({v:1,cards:S.cards,custom:S.custom,day:S.day});const raw=new TextEncoder().encode(json);
+async function packProgress(){const json=JSON.stringify({v:1,cards:S.cards,custom:S.custom,day:S.day,learned:studyState().learned});const raw=new TextEncoder().encode(json);
   if(window.CompressionStream){const cs=new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw')));return 'z'+b64u(new Uint8Array(await cs.arrayBuffer()))}
   return 'j'+b64u(raw)}
 async function unpackProgress(code){code=code.trim();const m=code.match(/#sync=([A-Za-z0-9_-]+)/);if(m)code=m[1];
@@ -814,6 +956,7 @@ async function unpackProgress(code){code=code.trim();const m=code.match(/#sync=(
   const d=JSON.parse(new TextDecoder().decode(raw));if(!d||!d.cards)throw new Error('bad');return d}
 function mergeProgress(d){const r=mergeData(d);session=null;save();rebuildVerbs();render();return r}
 function mergeData(d){let updated=0,added=0;
+  if(d.learned){const L=studyState().learned;for(const [k,ts] of Object.entries(d.learned)){if(!L[k]){L[k]=ts;added++}}}
   for(const [k,c] of Object.entries(d.cards||{})){const m=S.cards[k];
     if(!m){S.cards[k]=c;added++}else if((c.n||0)>(m.n||0)||((c.n||0)===(m.n||0)&&(c.l||0)>(m.l||0))){S.cards[k]=c;updated++}}
   let verbs=0;for(const cv of (d.custom||[])){if(cv&&cv.inf&&!S.custom.some(x=>x.inf===cv.inf)&&!BASE_VERBS.some(x=>x.inf===cv.inf)){S.custom.push(cv);verbs++}}
@@ -849,7 +992,7 @@ async function cloudSync(){const c=ghConf();if(!c)return null;if(cloudBusy)retur
       else if(g.status===401||g.status===403){ghSetState({error:'GitHub refused the key. It may have expired. Make a new one and connect again.'});return null}
       else if(g.status!==404){ghSetState({error:'Could not reach GitHub (error '+g.status+').'});return null}
       S.t=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
-      const payload=JSON.stringify({v:1,cards:S.cards,custom:S.custom,day:S.day,t:S.t});
+      const payload=JSON.stringify({v:1,cards:S.cards,custom:S.custom,day:S.day,learned:studyState().learned,t:S.t});
       const p=await ghApi(c,'PUT',{message:'Update Verbos progress',content:b64enc(payload),...(sha?{sha}:{})});
       if(p.status===200||p.status===201){ghSetState({last:Date.now(),error:''});return result}
       if(p.status!==409&&p.status!==422){ghSetState({error:'GitHub would not save the progress (error '+p.status+').'});return null}
@@ -990,9 +1133,10 @@ function copyLink(msg){
 }
 document.getElementById('sharebtn').addEventListener('click',shareApp);
 function isInstalled(){try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){return false}}
-function render(){view.replaceChildren(...(currentTab==='practice'?renderPractice():currentTab==='verbs'?renderVerbs():currentTab==='tenses'?renderTenses():renderSettings()).flat().filter(Boolean))}
+function render(){view.replaceChildren(...(currentTab==='study'?renderStudy():currentTab==='practice'?renderPractice():currentTab==='verbs'?renderVerbs():currentTab==='tenses'?renderTenses():renderSettings()).flat().filter(Boolean))}
 function go(tab,page){currentTab=tab;guiaPage=tab==='settings'?(page||null):guiaPage;if(tab!=='verbs')detailVerb=null;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));render();window.scrollTo(0,0)}
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+if(!counts().due&&!(S.custom.length&&0))currentTab='study';document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===currentTab?'page':'false'));
 render();
 showFlash();
 if(ghConf())withTimeout(cloudSync(),8000).then(r=>{if(r&&(r.added+r.updated+r.verbs)&&!session)render()});
