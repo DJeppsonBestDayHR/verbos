@@ -146,6 +146,7 @@ details.why .tbody{margin-top:8px}
 .panel ol li{margin:4px 0}
 .appicon{width:84px;height:84px;border-radius:19px;flex:none;-webkit-touch-callout:default;box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .iconrow{display:flex;align-items:center;gap:14px;margin:4px 0}
+.diag{white-space:pre-wrap;font:12px/1.5 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;margin:8px 0 0;color:var(--fg)}
 .linktxt{font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
 .sharebtn{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:6px 12px;font:600 13px var(--body);cursor:pointer}
 .sharebtn svg{width:16px;height:16px}
@@ -273,7 +274,7 @@ const VMAP=Object.fromEntries(VERBS.map(v=>[v.inf,v]));
 
 // ---------- state ----------
 let currentTab='practice',detailVerb=null,vFilter='all',vSearch='';
-const DEFAULT_SETTINGS={meaning:true,conj:true,tenses:[0],vos:false,newPerDay:15,group:'all',auto:true,rate:0.85,voice:''};
+const DEFAULT_SETTINGS={meaning:true,conj:true,tenses:[0],vos:false,newPerDay:15,group:'all',auto:true,rate:0.85,voice:'',trick:true};
 let S={cards:{},day:{d:'',n:0},settings:{...DEFAULT_SETTINGS},t:0};
 const LS='verbos-mz-v1';
 try{const j=JSON.parse(localStorage.getItem(LS)||'null');if(j&&j.cards){S=j;S.settings={...DEFAULT_SETTINGS,...j.settings}}}catch(e){}
@@ -333,6 +334,7 @@ function pickVoice(){return voices.find(v=>v.name===S.settings.voice)||voices[0]
 const SILENT_WAV="data:audio/wav;base64,UklGRsQPAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YaAPAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
 let silentEl=null;
 function unlockAudio(){
+  if(!S.settings.trick){if(silentEl)silentEl.pause();return}
   try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}
   try{if(!silentEl){silentEl=new Audio(SILENT_WAV);silentEl.loop=true;silentEl.setAttribute('playsinline','');silentEl.preload='auto'}
     if(silentEl.paused&&document.visibilityState==='visible'){const p=silentEl.play();if(p&&p.catch)p.catch(()=>{})}}catch(e){}
@@ -461,6 +463,9 @@ function renderSettings(){
       h('div',{class:'field'},h('label',{for:'rate'},'Speed'),h('select',{id:'rate',onchange:e=>set('rate',+e.target.value)},[[0.7,'Slow'],[0.85,'Relaxed'],[1,'Normal']].map(([r,l])=>h('option',{value:r,selected:st.rate===r},l)))),
       h('div',{class:'field'},h('span',{},'Speak answer when card flips'),h('button',{class:'toggle','aria-pressed':String(st.auto),onclick:()=>set('auto',!st.auto)},st.auto?'On':'Off')),
       h('div',{class:'field'},h('span',{},'Test'),h('button',{class:'btn',style:'padding:8px 14px',onclick:()=>say('Bom dia! Estou a aprender português em Moçambique.')},'Play sample')),
+      h('div',{class:'field'},h('span',{},'Play in Silent mode (iPhone)'),h('button',{class:'toggle','aria-pressed':String(st.trick),onclick:()=>{set('trick',!st.trick);if(!st.trick&&silentEl)silentEl.pause()}},st.trick?'On':'Off')),
+      h('div',{class:'field',style:'display:block'},h('div',{class:'row-between',style:'margin:0'},h('span',{},'Sound check'),h('button',{class:'btn',style:'padding:8px 14px',onclick:e=>soundCheck(e.target.closest('.field').querySelector('pre'))},'Run sound check')),
+        h('pre',{class:'diag'},'Tap Run sound check, then send a screenshot of this box if you hear nothing.')),
       h('p',{class:'note'},h('b',{},'No sound? '),'Turn the volume up while the app is open, then tap Play sample. The app should play sound even with Silent mode on. If it is still silent, close and reopen the app, and check Settings → Accessibility → Spoken Content → Voices to make sure a Portuguese voice is downloaded. As a last resort, turning off Silent mode always works.'),
       h('p',{class:'note'},'Pick a Portugal (pt-PT) voice. Mozambican speech is closer to it than to Brazilian, though Mozambicans say their vowels more fully. For a better voice on iPhone, go to Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal) and download an Enhanced voice, then reopen this page.')),
     h('div',{class:'panel'},h('h3',{},'How to use this well'),
@@ -500,7 +505,21 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='5';
+const APP_VERSION='6';
+function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
+  log('App version '+APP_VERSION);
+  if(!synth){log('This browser has no speech support.');return}
+  unlockAudio();
+  const v=pickVoice();
+  log('Portuguese voices: '+voices.length+(v?' · using '+v.name+' ('+v.lang+')':' · none chosen'));
+  log('Silent mode helper: '+(S.settings.trick?'on':'off')+' · audio session: '+(navigator.audioSession?navigator.audioSession.type:'not supported')+' · loop: '+(silentEl?(silentEl.paused?'paused':'playing'):'not started'));
+  const u=new SpeechSynthesisUtterance('Olá! Isto é um teste.');if(v){u.voice=v;u.lang=v.lang}else u.lang='pt-PT';u.rate=S.settings.rate;
+  let started=false;u.onstart=()=>{started=true;log('Speech started ✓ (if you hear nothing now, the phone is muting it)')};
+  u.onend=()=>log('Speech finished');u.onerror=e=>log('Speech error: '+(e.error||'unknown'));
+  if(synth.speaking||synth.pending)synth.cancel();if(synth.paused)synth.resume();synth.speak(u);
+  setTimeout(()=>{if(!started)log('Speech did not start after 3 seconds.')},3000);
+  setTimeout(()=>{if(silentEl)log('Loop after 1s: '+(silentEl.paused?'paused':'playing'))},1000);
+}
 async function forceUpdate(e){const b=e&&e.target;if(b)b.textContent='Updating…';
   try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}}catch(x){}
   try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(x){}
