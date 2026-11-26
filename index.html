@@ -196,6 +196,11 @@ details.why .tbody{margin-top:8px}
 .pbox{width:24px;height:24px;flex:none;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;font-weight:800;color:var(--brand-ink)}
 .pickrow.on .pbox{background:var(--brand);border-color:var(--brand)}
 .ptenses{margin-left:auto;color:var(--green);font-size:12px;flex:none;text-align:right}
+.kind{display:inline-block;font:600 10px/1 var(--body);letter-spacing:.05em;text-transform:uppercase;padding:4px 6px;border-radius:999px;margin-top:4px;vertical-align:1px}
+.k-reg{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+.k-irr{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)}
+.k-stem{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--fg)}
+.pickrow .kind{display:table;margin-top:4px}
 .linktxt{font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--surface-2);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
 .sharebtn{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:6px 12px;font:600 13px var(--body);cursor:pointer}
 .sharebtn svg{width:16px;height:16px}
@@ -561,8 +566,9 @@ function renderStudy(){
   if(study){const items=studyItems();const it=items[study.i];if(!it){study=null;return renderStudy()}
     const v=VMAP[it.inf],T=TENSES[it.t];
     const nav=h('div',{class:'row-between'},h('button',{class:'linkbtn',onclick:()=>{stopChant();study=null;render()}},'‹ Study set'),h('span',{class:'note'},'Table '+(study.i+1)+' of '+items.length));
-    const head=h('div',{class:'shead'},h('div',{class:'chips'},h('span',{class:'chip t'},T.pt),h('span',{class:'chip'},T.like),it.done?h('span',{class:'chip ok'},'✓ learned'):null),
+    const K=verbKind(v);const head=h('div',{class:'shead'},h('div',{class:'chips'},h('span',{class:'chip t'},T.pt),h('span',{class:'chip'},T.like),it.done?h('span',{class:'chip ok'},'✓ learned'):null),
       h('h2',{class:'sverb'},v.inf,spk(v.inf)),h('p',{class:'hint',style:'margin:0'},v.mean),
+      h('p',{class:'note',style:'margin:0'},h('span',{class:'kind '+K.cls},K.label),' ',K.tip),
       h('details',{class:'why'},h('summary',{},'When do I use '+T.pt+'?'),tenseBody(it.t)));
     const prevNext=h('div',{class:'snav'},
       h('button',{class:'btn',disabled:study.i===0,onclick:()=>{stopChant();study={i:study.i-1,phase:'see',shown:new Set()};render()}},'‹ Previous'),
@@ -588,7 +594,7 @@ function renderStudy(){
   const learnedCount=Object.keys(st.learned).filter(k=>VMAP[k.split('|')[0]]).length;
   const setCard=h('div',{class:'panel'},h('h3',{},'Your study set'),
     items.length?h('div',{class:'setlist'},items.map((x,i)=>h('button',{class:'setitem'+(x.done?' done':''),onclick:()=>startStudy(i)},
-      h('span',{},h('b',{},x.inf),' · ',TENSES[x.t].pt),h('span',{class:'note'},x.done?'✓ learned':'›')))):h('p',{class:'note'},'Pick some verbs and a tense below.'),
+      h('span',{},h('b',{},x.inf),' · ',TENSES[x.t].pt,' ',h('span',{class:'kind '+verbKind(VMAP[x.inf]).cls},verbKind(VMAP[x.inf]).label)),h('span',{class:'note'},x.done?'✓ learned':'›')))):h('p',{class:'note'},'Pick some verbs and a tense below.'),
     items.length?h('button',{class:'btn yellow block',style:'margin-top:10px',onclick:()=>{const i=items.findIndex(x=>!x.done);startStudy(i<0?0:i)}},left?'Study ('+left+' to learn)':'Study again'):null,
     left===0&&items.length?h('p',{class:'ok',style:'margin:8px 0 0'},'Everything in this set is learned. It is now in your daily review. Pick new verbs or another tense below.'):null);
   // picker
@@ -598,7 +604,7 @@ function renderStudy(){
     const allDone=st.set.tenses.every(t=>isLearned(inf,t));
     return h('li',{},h('button',{class:'pickrow'+(on?' on':''),'aria-pressed':String(on),onclick:()=>{
         const set=st.set.verbs;if(on)st.set.verbs=set.filter(x=>x!==inf);else{if(set.length>=MAXV){pickMsg('You can study up to '+MAXV+' verbs at a time. Remove one first, or finish learning it.');return}st.set.verbs=[...set,inf]}save();render()}},
-      h('span',{class:'pbox'},on?'✓':''),h('span',{class:'inf'},inf,h('span',{class:'mean'},v.mean)),
+      h('span',{class:'pbox'},on?'✓':''),h('span',{class:'inf'},inf,h('span',{class:'mean'},v.mean),h('span',{class:'kind '+verbKind(v).cls},verbKind(v).label)),
       h('span',{class:'ptenses'},lt.length?lt.map(t=>TENSES[t].pt.split(' ')[0].slice(0,4)+'.').join(' '):'',allDone?' ✓':'')))});
   const msg=h('p',{class:'note',id:'pickmsg',style:'margin:6px 0 0;color:var(--red)'},'');
   return [
@@ -610,6 +616,14 @@ function renderStudy(){
       h('ul',{class:'vlist picklist'},vList)),
     h('p',{class:'note'},learnedCount+' verb tables learned so far.')];
 }
+// Plain label for how a verb behaves, shown in Estudar
+function verbKind(v){let t=v.type;
+  if(t==='added'){const g=conjugate(v.inf);t=g&&g.every((r,p)=>r.every((f,i)=>f===v.forms[p][i].f))?'regular':'irregular'}
+  return ({irregular:{label:'Irregular',cls:'k-irr',tip:'Does not follow the pattern. Learn the forms as a whole.'},
+    'stem change':{label:'Stem change',cls:'k-stem',tip:'Regular endings, but the stem changes in some forms (sinto, sirvo, sigo).'},
+    spelling:{label:'Regular · spelling change',cls:'k-reg',tip:'Regular, with a small spelling change to keep the sound (fiquei, chegue).'},
+    reflexive:{label:'Regular · reflexive',cls:'k-reg',tip:'Regular endings, plus me / te / se / nos.'},
+    regular:{label:'Regular',cls:'k-reg',tip:'Follows the pattern. Learn the endings once and they work for many verbs.'}})[t]||{label:'Regular',cls:'k-reg',tip:''}}
 function pickMsg(t){const m=document.getElementById('pickmsg');if(m){m.textContent=t;m.scrollIntoView({block:'nearest'})}}
 function newQuiz(it){return {it,order:shuffle(personsOn()),pos:0,round:1,mistakes:0,streak:0,choices:null}}
 function renderQuiz(it,v,T,head){const q=study.quiz;const p=q.order[q.pos];const k='c|'+it.inf+'|'+it.t+'|'+p;
@@ -926,7 +940,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='16';
+const APP_VERSION='17';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
