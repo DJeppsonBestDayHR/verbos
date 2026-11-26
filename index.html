@@ -640,7 +640,9 @@ function renderEditor(){
     E.forms=f;render()};
   const lk=E.look||{};const lookMsg=h('p',{class:'note',style:'margin:0'},lk.msg||'');
   const applyPt=r=>{const refl=E.refl;E.inf=refl?r.inf+'-se':r.inf;if(r.meaning)E.mean=r.meaning;
-    E.forms=r.forms?(refl?reflexivize(r.forms):r.forms):conjugate(E.inf);
+    const hasClitic=r.forms&&/-(me|te|se|nos|vos)$/.test(r.forms[0][0]);
+    E.forms=r.forms?(refl&&!hasClitic?reflexivize(r.forms):r.forms):conjugate(E.inf);
+    if(r.forms&&hasClitic&&!refl)E.inf=r.inf+'-se';
     if(r.ex.length&&!E.ex.some(e=>e[0].trim()))E.ex=[0,1].map(i=>r.ex[i]?[...r.ex[i]]:['','']);
     E.look={msg:r.forms?'✓ Meaning'+(r.ex.length?', examples':'')+' and conjugations from Wiktionary. Check them below, then add the verb.':'Found the meaning in Wiktionary, but not a conjugation table, so the forms below follow the regular pattern. Check them.',ok:!!r.forms}};
   const doLook=async(word,asEnglish)=>{word=String(word||'').trim().toLowerCase();if(!word){E.look={msg:'Type a verb first.'};render();return}
@@ -782,7 +784,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='14';
+const APP_VERSION='15';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
