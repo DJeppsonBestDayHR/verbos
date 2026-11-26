@@ -328,8 +328,13 @@ function loadVoices(){if(!synth)return;voices=synth.getVoices().filter(v=>/^pt/i
 function score(v){const l=v.lang.replace('_','-').toLowerCase();return (l==='pt-pt'?10:l.startsWith('pt-')&&l!=='pt-br'?6:l==='pt-br'?2:1)+(/enhanced|premium|natural/i.test(v.name)?1:0)}
 if(synth){loadVoices();synth.onvoiceschanged=loadVoices}
 function pickVoice(){return voices.find(v=>v.name===S.settings.voice)||voices[0]||null}
-function say(text){if(!synth)return;synth.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();
-  if(v){u.voice=v;u.lang=v.lang}else u.lang='pt-PT';u.rate=S.settings.rate;synth.speak(u)}
+function say(text){if(!synth)return;
+  // iPhone Safari can drop speech queued right after cancel(), so only cancel when something is playing
+  if(synth.speaking||synth.pending)synth.cancel();
+  if(synth.paused)synth.resume();
+  if(!voices.length)loadVoices();
+  const u=new SpeechSynthesisUtterance(text);const v=pickVoice();
+  if(v){u.voice=v;u.lang=v.lang}else u.lang='pt-PT';u.rate=S.settings.rate;u.volume=1;synth.speak(u)}
 
 // ---------- rendering helpers ----------
 function h(tag,attrs,...kids){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs||{})){
@@ -357,6 +362,7 @@ function renderPractice(){
       h('div',{class:'stat'},h('b',{},c.newToday),h('small',{},'new today')),
       h('div',{class:'stat'},h('b',{},c.known),h('small',{},'of '+c.total+' learned'))),
     h('button',{class:'btn yellow block',disabled:!(c.due+c.newToday),onclick:startSession},c.due+c.newToday?'Start practice':'All caught up for today'),
+    h('p',{class:'note',style:'margin-top:12px'},'🔊 Can’t hear the audio? Turn off Silent mode on your iPhone (side switch or Control Center) and turn the volume up.'),
     h('p',{class:'note',style:'margin-top:12px'},'Practising: '+[S.settings.meaning?'meanings':null,S.settings.conj?'conjugations ('+tl+')':null].filter(Boolean).join(' + ')+'. ',
       h('button',{class:'linkbtn',onclick:()=>go('settings')},'Change'))
   ];
@@ -444,6 +450,7 @@ function renderSettings(){
       h('div',{class:'field'},h('label',{for:'rate'},'Speed'),h('select',{id:'rate',onchange:e=>set('rate',+e.target.value)},[[0.7,'Slow'],[0.85,'Relaxed'],[1,'Normal']].map(([r,l])=>h('option',{value:r,selected:st.rate===r},l)))),
       h('div',{class:'field'},h('span',{},'Speak answer when card flips'),h('button',{class:'toggle','aria-pressed':String(st.auto),onclick:()=>set('auto',!st.auto)},st.auto?'On':'Off')),
       h('div',{class:'field'},h('span',{},'Test'),h('button',{class:'btn',style:'padding:8px 14px',onclick:()=>say('Bom dia! Estou a aprender português em Moçambique.')},'Play sample')),
+      h('p',{class:'note'},h('b',{},'No sound? '),'iPhone mutes spoken audio from websites when Silent mode is on, even with the volume up. Turn off Silent mode (side switch, Action button or Control Center), turn the volume up, then tap Play sample. If it is still silent, check Settings → Accessibility → Spoken Content → Voices and make sure a Portuguese voice is downloaded.'),
       h('p',{class:'note'},'Pick a Portugal (pt-PT) voice. Mozambican speech is closer to it than to Brazilian, though Mozambicans say their vowels more fully. For a better voice on iPhone, go to Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal) and download an Enhanced voice, then reopen this page.')),
     h('div',{class:'panel'},h('h3',{},'How to use this well'),
       h('ol',{},
