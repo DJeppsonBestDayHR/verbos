@@ -715,7 +715,8 @@ function syncPanel(){
     h('p',{style:'margin:14px 0 0;font-weight:600'},'2. On the other device'),
     h('p',{class:'note',style:'margin:4px 0 0'},'Press and hold the link in Messages (or wherever you sent it) and tap Copy. Do not just tap it: that opens Safari, which keeps separate progress from your Verbos icon. Open Verbos from your home screen or Dock, come here, and paste it below.'),
     h('div',{style:'margin-top:12px;display:flex;flex-direction:column;gap:8px'},box,
-      h('button',{class:'btn block',onclick:async()=>{try{const d=await unpackProgress(box.value);msg.textContent=mergeSummary(mergeProgress(d))}catch(e){msg.textContent='That does not look like a Verbos progress link. Copy the whole link and try again.'}}},'Bring in progress'),msg),
+      h('button',{class:'btn block',onclick:async()=>{let d;try{d=await unpackProgress(box.value)}catch(e){msg.textContent='That does not look like a Verbos progress link. Copy the whole link and try again.';return}
+        const r=mergeProgress(d);const bg=h('div',{class:'sheet-bg'},h('div',{class:'sheet'},h('h3',{},'All set'),h('p',{class:'ok',style:'margin:0'},mergeSummary(r)),h('button',{class:'btn primary block',onclick:()=>{bg.remove();go('practice')}},'Start practising')));document.body.append(bg)}},'Bring in progress'),msg),
     h('p',{class:'note'},'Only share this link with yourself. Anyone who opens it gets a copy of your progress, though they cannot change yours.'))}
 async function checkSyncLink(){const m=location.hash.match(/^#sync=([A-Za-z0-9_-]+)/);if(!m)return;
   let d;try{d=await unpackProgress(m[1])}catch(e){history.replaceState(null,'',location.pathname);return}
