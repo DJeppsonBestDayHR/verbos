@@ -178,9 +178,10 @@ details.why .tbody{margin-top:8px}
 .sverb{font:800 34px/1 var(--display);margin:4px 0 0;display:flex;align-items:center;gap:10px}
 .chip.ok{background:var(--green);color:var(--bg)}
 .stable{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.srow{display:grid;grid-template-columns:minmax(84px,auto) 1fr;grid-template-areas:"pro form" "pro en";column-gap:12px;align-items:center;text-align:left;padding:10px 14px;background:var(--surface);border:0;border-top:1px solid var(--line);color:var(--fg);cursor:pointer;font:inherit}
+.srow{display:grid;grid-template-columns:100px 1fr;grid-template-areas:"pro form" "pro en";column-gap:12px;align-items:center;text-align:left;padding:10px 14px;background:var(--surface);border:0;border-top:1px solid var(--line);color:var(--fg);cursor:pointer;font:inherit}
 .srow:first-child{border-top:0}
-.spro{grid-area:pro;color:var(--muted);font-size:14px}
+.spro{grid-area:pro;color:var(--muted);font-size:13px;line-height:1.3;max-width:96px}
+.scue{display:block;font-size:11px;opacity:.8}
 .sform{grid-area:form;font:700 24px/1.15 var(--display)}
 .sen{grid-area:en;color:var(--muted);font-size:12px}
 .sstem{color:var(--fg)}
@@ -269,6 +270,7 @@ const TENSES=[
   tip:'English uses the present here (“when you arrive”). Portuguese needs this form. People use it all the time in everyday speech.'}];
 const PERSONS=['eu','tu','ele / ela / você','nós','vós','eles / elas / vocês'];
 const PSPEAK=['eu','tu','ele','nós','vós','eles'];
+const PLABEL=['eu','tu','ele / ela / você','nós','vós','eles / elas / vocês'];
 
 // English meaning, type tag, group, and two Mozambican example sentences per verb
 const INFO={
@@ -557,7 +559,7 @@ function markLearned(inf,t){const st=studyState();st.learned[inf+'|'+t]=Date.now
 function tableFor(v,t,opts){const ps=personsOn();const T=TENSES[t];
   return h('div',{class:'stable'},ps.map(p=>{const form=v.forms[p][t].f;const sp=splitForm(v,form);const shown=!opts.cover||opts.shown.has(p);
     return h('button',{class:'srow'+(shown?'':' hidden-row'),onclick:()=>{if(opts.cover&&!shown){opts.shown.add(p);render();say(phrase(v,t,p))}else say(phrase(v,t,p))}},
-      h('span',{class:'spro'},(T.cue?T.cue+' ':'')+PSPEAK[p]),
+      h('span',{class:'spro'},T.cue?h('span',{class:'scue'},T.cue+' '):null,PLABEL[p]),
       shown?h('span',{class:'sform'},sp.pre?h('span',{class:'sstem'},sp.pre):null,h('span',{class:'sstem'},sp.stem),h('span',{class:sp.irregular?'sirr':'send'},sp.end),sp.post?h('span',{class:'sstem'},sp.post):null)
            :h('span',{class:'sform shide'},'tap to reveal'),
       h('span',{class:'sen'},shown?v.forms[p][t].en:''))}))}
@@ -852,7 +854,7 @@ function renderEditor(){
 function renderDetail(v){
   const persons=personsOn().length===6?[0,1,2,3,4,5]:[0,1,2,3,4,5];
   const table=h('table',{},h('thead',{},h('tr',{},h('th',{},''),TENSES.map(t=>h('th',{},t.pt)))),
-    h('tbody',{},persons.map(p=>h('tr',{},h('th',{},PSPEAK[p]),TENSES.map((t,ti)=>h('td',{},h('button',{onclick:()=>say(phrase(v,ti,p)),title:v.forms[p][ti].en},v.forms[p][ti].f)))))));
+    h('tbody',{},persons.map(p=>h('tr',{},h('th',{},PLABEL[p]),TENSES.map((t,ti)=>h('td',{},h('button',{onclick:()=>say(phrase(v,ti,p)),title:v.forms[p][ti].en},v.forms[p][ti].f)))))));
   return [h('div',{class:'detail'},
     h('button',{class:'linkbtn',onclick:()=>{detailVerb=null;render()}},'‹ All verbs'),
     h('h2',{},v.inf,spk(v.inf)),
@@ -940,7 +942,7 @@ function renderTenses(){
       tenseBody(i),
       h('p',{class:'note'},'Example with estar: ',h('b',{},PSPEAK[0]+' '+VMAP.estar.forms[0][i].f),' · with fazer: ',h('b',{},PSPEAK[0]+' '+VMAP.fazer.forms[0][i].f))))];
 }
-const APP_VERSION='17';
+const APP_VERSION='18';
 function soundCheck(out){const lines=[];const log=t=>{lines.push(t);out.textContent=lines.join('\n')};
   log('App version '+APP_VERSION);
   log('Recorded audio: '+(AUDIO_IDS?AUDIO_IDS.size+' clips':'none yet (using the live voice)'));
